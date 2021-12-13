@@ -1,0 +1,29 @@
+version: "3.7"
+services:
+    nginx:
+        image: nginx
+        restart: always
+        ports:
+            - 19901:80
+        volumes:
+            - ./src/dist:/usr/share/nginx/html
+            - ./proxy/default.conf:/etc/nginx/conf.d/default.conf
+    proxy:
+        build: proxy
+        restart: always
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "50m"
+        volumes:
+            - ./proxy/index.js:/usr/share/app/index.js
+        entrypoint: ['npm', 'run', 'start']
+
+    builder:
+        build: src
+        restart: always
+        environment:
+          - ENV=DEV
+        volumes:
+            - ./src/src:/usr/share/app/src/src
+        entrypoint: ['npm', 'run', 'watch']
