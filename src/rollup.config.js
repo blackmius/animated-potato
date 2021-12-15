@@ -2,8 +2,7 @@ import { terser } from "rollup-plugin-terser";
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 
-import dotenv from 'dotenv';
-dotenv.config();
+const minify = process.env.ENV === 'PRODUCTION';
 
 export default {
   input: 'src/app.js',
@@ -14,6 +13,6 @@ export default {
   plugins: [
     resolve({ browser: true }),
     commonjs(),
-    process.env.ENV !== 'DEV' && terser(),
+    minify && terser(),
   ],
 };

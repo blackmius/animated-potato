@@ -29,14 +29,16 @@ function render() {
 }
 window.onpopstate = function(event) {
     let frag = getFragment();
-    if (frag === current) return;
-    current = frag;
-    currentState = event.state;
-    render();
+    if (frag !== current) {
+        current = frag;
+        currentState = event.state;
+        render();
+    }
     return false;
 }
 
 export default Object.assign(page, {
+    getFragment,
     register(route, f) {
         routes[route] = f;
         render();
