@@ -97,7 +97,7 @@ export function attach(el) {
         if (vEl) vdom.update(vEl, vTree); else vEl = vdom.append(el, vTree);
     });
     const Val = (v, ...ah) => {
-      const f = (...a) => {
+      return (...a) => {
           if (a.length === 0) return v;
           update();
           let res = v; // assignment returns a previously stored value
@@ -111,12 +111,6 @@ export function attach(el) {
           ah.forEach(f => f(v));
           return res;
       };
-      f.a = (fn) => (...a) => {
-          if (a.length === 0) return v;
-          fn(...a);
-          return f(...a);
-      };
-      return f;
     };
     const contents = Object.assign(Val(), {update, Val});
     return contents;

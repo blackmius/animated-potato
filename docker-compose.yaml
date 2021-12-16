@@ -5,6 +5,8 @@ services:
         restart: always
         ports:
             - 19901:80
+        depends_on: 
+            - proxy
         volumes:
             - ./src/dist:/usr/share/nginx/html
             - ./proxy/default.conf:/etc/nginx/conf.d/default.conf
@@ -15,9 +17,20 @@ services:
             driver: "json-file"
             options:
                 max-size: "50m"
+        depends_on: 
+            - mysql
         volumes:
             - ./proxy/index.js:/usr/share/app/index.js
         entrypoint: ['npm', 'run', 'start']
+    
+    mysql:
+        image: mysql
+        restart: always
+        environment:
+            MYSQL_DATABASE: apteka
+            MYSQL_ROOT_PASSWORD: root
+        volumes:
+            - './proxy/schema.sql:/docker-entrypoint-initdb.d/1.sql'
 
     builder:
         build: src
@@ -25,5 +38,6 @@ services:
         environment:
           - ENV=DEV
         volumes:
-            - ./src/src:/usr/share/app/src/src
+            - ./src/src:/usr/share/app/src
+            - ./src/dist:/usr/share/app/dist
         entrypoint: ['npm', 'run', 'watch']

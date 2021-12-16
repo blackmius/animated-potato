@@ -18,6 +18,7 @@
 --
 -- Table structure for table `adresa`
 --
+USE DATABASE apteka;
 
 DROP TABLE IF EXISTS `adresa`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

@@ -1,6 +1,6 @@
 import { throttle } from './z/z3.9.js';
 
-let baseWidth = 1280;
+let baseWidth = 1920;
 
 function scaleFactor() { return window.innerWidth / baseWidth }//Math.min(1, ); }
 
