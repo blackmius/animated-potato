@@ -127,7 +127,7 @@ CREATE TABLE `konakti_postavschika` (
 
 LOCK TABLES `konakti_postavschika` WRITE;
 /*!40000 ALTER TABLE `konakti_postavschika` DISABLE KEYS */;
-INSERT INTO `konakti_postavschika` VALUES (1,1,1,'pochta'),(2,1,2,'telefon'),(3,2,1,'pochta'),(4,2,2,'telefon'),(5,3,1,'pochta'),(6,3,2,'telefon'),(7,4,1,'pochta'),(8,4,2,'telefon'),(9,5,1,'pochta'),(10,5,2,'telefon');
+INSERT INTO `konakti_postavschika` VALUES (1,1,1,'buisness@farma.one'),(2,1,2,'88005553535'),(3,2,1,'zakupki@post.opt'),(4,2,2,'79182011931'),(5,3,1,'farmaopt@mail.ru'),(6,3,2,'79802005428'),(7,4,1,'lekar@gmail.com'),(8,4,2,'79801236547'),(9,5,1,'lazar@yandex.ru'),(10,5,2,'798567548712');
 /*!40000 ALTER TABLE `konakti_postavschika` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -215,7 +215,7 @@ CREATE TABLE `postavschik` (
 
 LOCK TABLES `postavschik` WRITE;
 /*!40000 ALTER TABLE `postavschik` DISABLE KEYS */;
-INSERT INTO `postavschik` VALUES (1,'farma_one','5905066328','7700000000000'),(2,'post_apt','5826107349','6300000000000'),(3,'farma_opt','5031108236','3200000000000'),(4,'lekar','7731472210','5200000000000'),(5,'lazar','9721031770','3600000000000');
+INSERT INTO `postavschik` VALUES (1,'Фарма-1','5905066328','7700000000000'),(2,'Пост апт','5826107349','6300000000000'),(3,'Фарма опт','5031108236','3200000000000'),(4,'Лекарь','7731472210','5200000000000'),(5,'Лазарь','9721031770','3600000000000');
 /*!40000 ALTER TABLE `postavschik` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -241,7 +241,7 @@ CREATE TABLE `preparat` (
 
 LOCK TABLES `preparat` WRITE;
 /*!40000 ALTER TABLE `preparat` DISABLE KEYS */;
-INSERT INTO `preparat` VALUES (1,'novopasit',0,479.00),(2,'trigande',0,350.00),(3,'galoperidol',1,500.00),(4,'mezim',0,100.00),(5,'noshpa',0,237.00);
+INSERT INTO `preparat` VALUES (1,'Новопасит',0,479.00),(2,'Триганде',0,350.00),(3,'Галоперидол',1,500.00),(4,'Мезим',0,100.00),(5,'Ношпа',0,237.00);
 /*!40000 ALTER TABLE `preparat` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -308,7 +308,7 @@ CREATE TABLE `sotrudnik` (
 
 LOCK TABLES `sotrudnik` WRITE;
 /*!40000 ALTER TABLE `sotrudnik` DISABLE KEYS */;
-INSERT INTO `sotrudnik` VALUES (1,'Ivanov','Ivan','Ivanovich','8999000000','4515','163759','1995-05-01',1,1,35000.00,'2021-08-01',NULL,'Lku52NoKG53Gex+ByF2E0rhUh/bc9+XHPm1ulRBat1s='),(2,'Sidorov','Petr','Ivanovich','8903111333','4516','999888','1986-09-28',1,1,35000.00,'2021-08-02',NULL,'s5RCPiQSAEtewj+EIv0F3TP6gJo6uHmsoAkh18NdtBc='),(3,'Pavlova','Polina','Petrovna','8906709643','4513','333444','1999-06-12',0,2,40000.00,'2021-08-05',NULL,'OcjateMI7om8yzwsi5m+YFNX/HJZNJq6j51/psLyRD0='),(4,'Komarov','Ilya','Denisovich','89645432343','1213','098675','1993-12-31',1,2,45000.00,'2021-08-10',NULL,'VMk9F97qbwlNHUQ2TJX+gPdvM2onFudHUud6Oh79dyQ='),(5,'Galkina','Alla','Borisovna','89996438911','9876','123321','1987-09-07',0,3,60000.00,'2021-08-21',NULL,'EijNOj//JCJHaBAuGtmzE7rd88DWN8iyn0+qKDG9KE4=');
+INSERT INTO `sotrudnik` VALUES (1,'Иванов','Иван','Иванович','8999000000','4515','163759','1995-05-01',1,1,35000.00,'2021-08-01',NULL,'Lku52NoKG53Gex+ByF2E0rhUh/bc9+XHPm1ulRBat1s='),(2,'Сидоров','Петр','Иванович','8903111333','4516','999888','1986-09-28',1,1,35000.00,'2021-08-02',NULL,'s5RCPiQSAEtewj+EIv0F3TP6gJo6uHmsoAkh18NdtBc='),(3,'Павлова','Полина','Петровна','8906709643','4513','333444','1999-06-12',0,2,40000.00,'2021-08-05',NULL,'OcjateMI7om8yzwsi5m+YFNX/HJZNJq6j51/psLyRD0='),(4,'Комаров','Илья','Денисович','89645432343','1213','098675','1993-12-31',1,2,45000.00,'2021-08-10',NULL,'VMk9F97qbwlNHUQ2TJX+gPdvM2onFudHUud6Oh79dyQ='),(5,'Галкина','Алла','Борисовна','89996438911','9876','123321','1987-09-07',0,3,60000.00,'2021-08-21',NULL,'EijNOj//JCJHaBAuGtmzE7rd88DWN8iyn0+qKDG9KE4=');
 /*!40000 ALTER TABLE `sotrudnik` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -332,7 +332,7 @@ CREATE TABLE `tip_kontakta` (
 
 LOCK TABLES `tip_kontakta` WRITE;
 /*!40000 ALTER TABLE `tip_kontakta` DISABLE KEYS */;
-INSERT INTO `tip_kontakta` VALUES (1,'pochta'),(2,'telefon');
+INSERT INTO `tip_kontakta` VALUES (1,'Элетронная почта'),(2,'Телефон');
 /*!40000 ALTER TABLE `tip_kontakta` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
