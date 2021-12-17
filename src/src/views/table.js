@@ -1,5 +1,8 @@
 import { icons } from ".";
-import { body, z } from "../z/z3.9";
+import { q } from "../api";
+import router from "../router";
+import { body, Val, z } from "../z/z3.9";
+import Button from "./button";
 import { Dropdown } from "./dropdown";
 
 
@@ -12,39 +15,61 @@ const iconButton = (icon, onclick, { disabled }={}) =>
         onclick(e) { if (!disabled) onclick(e); }
     }, icon);
 
-export default function Table(columns, data=[]) {
+export default function Table(columns, options={}) {
     const filters = { rowsPerPage: 10, skip: 0, count: 0 };
+    let data = Val([]), loading = Val(false), loadingError = Val('');
+    function load() {
+        const qs = `select ${options.pk},${columns.map(c => c.attr).join(',')} from ${options.table} limit ${filters.rowsPerPage} offset ${filters.skip}`;
+        const cq = `select count(*) from ${options.table}`;
+        data([]);
+        loadingError('');
+        loading(true);
+        Promise.all([
+            q(qs).then(data),
+            q(cq).then(r => (filters.count = r[0]['count(*)'], body.update()))
+        ]).catch(loadingError).finally(i => loading(false));
+    }
+    load();
     return z['shadow overflow-hidden border-b border-gray-200 sm:rounded-lg'](
         z.Table['min-w-full divide-y divide-gray-200'](
             z.Thead['bg-gray-50'](z.Tr(columns.map(
                 c => z.Th['px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'](c.name)
             ))),
             z.Tbody['bg-white divide-y divide-gray-200'](
-                data.map(r => z.Tr(r.map(v => z.Td['px-6 py-4 whitespace-nowrap'](v))))
+                _=>data().map(r => z.Tr({
+                    onclick() { 
+                        if (options.link) {
+                            router.navigate(options.link+'/'+r[options.pk])
+                        }
+                    }
+                }, columns.map(v => z.Td['px-6 py-4 whitespace-nowrap'](r[v.attr]))))
             ),
         ),
-        data.length === 0 ? z['flex justify-center px-6 py-4']('Пока здесь нет записей'): '',
+        _=> loading() ? z['flex justify-center px-6 py-4'](icons.loading) :
+            loadingError() ? z['flex justify-center px-6 py-4'](z(z('Ошибка загрузки данных'), Button('Повторить', load))) :
+            data().length === 0 ? z['flex justify-center px-6 py-4']('Пусто') : '',
         z['flex justify-center px-6 py-4 w-full bg-gray-50 text-gray-500'](z['flex-1'],
             'Количество на странице',
             z['ml-2'],
             Dropdown(z['flex'](_ => filters.rowsPerPage, icons.chevronDown), close => [10, 20, 50].map(i => z['text-lg cursor-pointer text-gray-500']({ onclick() {
                 filters.rowsPerPage = i;
+                load();
                 close();
             } }, i))),
             z['ml-4'],
             _ => `${filters.skip}-${Math.min(filters.count, filters.skip+filters.rowsPerPage)} из ${filters.count}`,
             z['ml-4'],
             _ => [
-                iconButton(icons.chevronDoubleLeft, _ => { filters.skip = 0; body.update(); }, {
+                iconButton(icons.chevronDoubleLeft, _ => { filters.skip = 0; load(); }, {
                     disabled: filters.rowsPerPage > filters.count
                 }),
-                iconButton(icons.chevronLeft, _ => { filters.skip -= filters.rowsPerPage; body.update(); }, {
+                iconButton(icons.chevronLeft, _ => { filters.skip -= filters.rowsPerPage; load(); }, {
                     disabled: filters.skip - filters.rowsPerPage < 0
                 }),
-                iconButton(icons.chevronRight, _ => { filters.skip += filters.rowsPerPage; body.update(); }, {
+                iconButton(icons.chevronRight, _ => { filters.skip += filters.rowsPerPage; load(); }, {
                     disabled: filters.skip + filters.rowsPerPage > filters.count
                 }),
-                iconButton(icons.chevronDoubleRight, _ => { filters.skip = filters.count - filters.rowsPerPage; body.update(); }, {
+                iconButton(icons.chevronDoubleRight, _ => { filters.skip = filters.count - filters.rowsPerPage; load(); }, {
                     disabled: filters.rowsPerPage > filters.count
                 })
             ]

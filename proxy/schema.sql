@@ -18,7 +18,8 @@
 --
 -- Table structure for table `adresa`
 --
-USE DATABASE apteka;
+CREATE DATABASE IF NOT EXISTS apteka;
+USE apteka;
 
 DROP TABLE IF EXISTS `adresa`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -96,7 +97,7 @@ CREATE TABLE `dolzhnost` (
 
 LOCK TABLES `dolzhnost` WRITE;
 /*!40000 ALTER TABLE `dolzhnost` DISABLE KEYS */;
-INSERT INTO `dolzhnost` VALUES (1,'provizor'),(2,'manager_pr'),(3,'manager_del'),(4,'director');
+INSERT INTO `dolzhnost` VALUES (1,'Провизор'),(2,'Менеджер'),(3,'Управляющий');
 /*!40000 ALTER TABLE `dolzhnost` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -294,6 +295,7 @@ CREATE TABLE `sotrudnik` (
   `zarplata` decimal(15,2) NOT NULL,
   `data_naima` date NOT NULL,
   `data_uvolneniya` date DEFAULT NULL,
+  `kod_avtorizacii` varchar(32) NOT NULL,
   PRIMARY KEY (`kod_sotrudnika`),
   KEY `dolzhnost_idx` (`kod_dolzhnosti`),
   CONSTRAINT `dolzhnost` FOREIGN KEY (`kod_dolzhnosti`) REFERENCES `dolzhnost` (`kod_dolzhnosti`) ON DELETE CASCADE
@@ -306,7 +308,7 @@ CREATE TABLE `sotrudnik` (
 
 LOCK TABLES `sotrudnik` WRITE;
 /*!40000 ALTER TABLE `sotrudnik` DISABLE KEYS */;
-INSERT INTO `sotrudnik` VALUES (1,'Ivanov','Ivan','Ivanovich','8999000000','4515','163759','1995-05-01',1,1,35000.00,'2021-08-01',NULL),(2,'Sidorov','Petr','Ivanovich','8903111333','4516','999888','1986-09-28',1,1,35000.00,'2021-08-02',NULL),(3,'Pavlova','Polina','Petrovna','8906709643','4513','333444','1999-06-12',0,2,40000.00,'2021-08-05',NULL),(4,'Komarov','Ilya','Denisovich','89645432343','1213','098675','1993-12-31',1,3,45000.00,'2021-08-10',NULL),(5,'Galkina','Alla','Borisovna','89996438911','9876','123321','1987-09-07',0,4,60000.00,'2021-08-21',NULL);
+INSERT INTO `sotrudnik` VALUES (1,'Ivanov','Ivan','Ivanovich','8999000000','4515','163759','1995-05-01',1,1,35000.00,'2021-08-01',NULL,'Lku52NoKG53Gex+ByF2E0rhUh/bc9+XHPm1ulRBat1s='),(2,'Sidorov','Petr','Ivanovich','8903111333','4516','999888','1986-09-28',1,1,35000.00,'2021-08-02',NULL,'s5RCPiQSAEtewj+EIv0F3TP6gJo6uHmsoAkh18NdtBc='),(3,'Pavlova','Polina','Petrovna','8906709643','4513','333444','1999-06-12',0,2,40000.00,'2021-08-05',NULL,'OcjateMI7om8yzwsi5m+YFNX/HJZNJq6j51/psLyRD0='),(4,'Komarov','Ilya','Denisovich','89645432343','1213','098675','1993-12-31',1,2,45000.00,'2021-08-10',NULL,'VMk9F97qbwlNHUQ2TJX+gPdvM2onFudHUud6Oh79dyQ='),(5,'Galkina','Alla','Borisovna','89996438911','9876','123321','1987-09-07',0,3,60000.00,'2021-08-21',NULL,'EijNOj//JCJHaBAuGtmzE7rd88DWN8iyn0+qKDG9KE4=');
 /*!40000 ALTER TABLE `sotrudnik` ENABLE KEYS */;
 UNLOCK TABLES;
 

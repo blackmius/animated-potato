@@ -1,5 +1,5 @@
 
-import { Val } from './z/z3.9.js';
+import { throttle, Val } from './z/z3.9.js';
 
 const routes = {};
 
@@ -13,7 +13,7 @@ function getFragment() {
 }
 
 let current, currentState = {}, page=Val(''), unknown;
-function render() {
+const render = throttle(10, function render() {
     const frag = getFragment()
     const result = Object.entries(routes).some(([route, cb]) => {
         const match = frag.match(route);
@@ -26,7 +26,8 @@ function render() {
     if (!result && unknown !== undefined) {
         page(unknown(frag));
     }
-}
+});
+
 window.onpopstate = function(event) {
     let frag = getFragment();
     if (frag !== current) {
@@ -53,5 +54,6 @@ export default Object.assign(page, {
     navigate(url, state={}) {
         history.pushState(state, null, url);
         window.onpopstate({state});
+        render();
     }
 });

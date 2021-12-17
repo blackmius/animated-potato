@@ -28,9 +28,10 @@ services:
         restart: always
         environment:
             MYSQL_DATABASE: apteka
+            MYSQL_ROOT_USER: root
             MYSQL_ROOT_PASSWORD: root
         volumes:
-            - './proxy/schema.sql:/docker-entrypoint-initdb.d/1.sql'
+            - './proxy/schema.sql:/docker-entrypoint-initdb.d/setup.sql'
 
     builder:
         build: src

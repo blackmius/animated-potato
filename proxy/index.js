@@ -11,8 +11,8 @@ const pool = mysql.createPool({ host:'mysql', user: 'root', password: 'root', da
 app.post('/q', async (req, res) => {
     try {
         const promisePool = pool.promise();
-        const result = await promisePool.execute(req.body[0], req.body[1] || []);
-        res.json(result);
+        const [rows, buf] = await promisePool.execute(req.body[0] || '', req.body[1] || []);
+        res.json(rows);
     } catch(e) {
         res.status(400);
         res.json(e);
