@@ -1,26 +1,31 @@
 import { z, Val } from "../z/z3.9";
+import Popper from '../popper.js';
 
-function Panel(c) {
+function Panel(c, p) {
     let target;
     return Object.assign(
-        z['fixed p-2 opacity-0 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none']({
+        z['absolute p-2 z-10 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none']({
                 on$created(e) {
                     target = e.target;
-                    setTimeout(_ => {
-                        const r = target.getBoundingClientRect();
-                        let x = 0, y = 0;
-                        if (r.x + r.width > window.innerWidth) x = window.innerWidth - r.x - r.width - 32;
-                        if (r.y + r.height > window.innerHeight) y = window.innerHeight - r.y - r.height - 32;
-                        target.style.transform = `translate(${x}px, ${y}px)`;
-                        target.animate([
-                            { transform: 'scale(0.95)', opacity: 0, easing: 'ease-in' },
-                            { transform: 'scale(1)', opacity: 1 }
-                        ], {
-                            duration: 100,
-                            fill: 'forwards'
-                        });
-                    }, 1)
-                }
+                    Popper.createPopper(p, target, {
+                        placement: 'bottom-start',
+                        modifiers: [
+                            {
+                              name: 'offset',
+                              options: {
+                                offset: [0, 8],
+                              },
+                            },
+                          ],
+                    });
+                    target.animate([
+                        { opacity: 0, easing: 'ease-in' },
+                        { opacity: 1 }
+                    ], {
+                        duration: 100,
+                    });
+                },
+                onclick(e) { e.stopPropagation(); }
             },
             c
         ),
@@ -28,8 +33,8 @@ function Panel(c) {
             async close() {
                 if (target)
                     await target.animate([
-                        { transform: 'scale(1)', opacity: 1, easing: 'ease-out' },
-                        { transform: 'scale(0.95)', opacity: 0 }
+                        { opacity: 1, easing: 'ease-out' },
+                        { opacity: 0 }
                     ], {
                         duration: 75,
                         fill: 'forwards'
@@ -39,20 +44,21 @@ function Panel(c) {
 }
 
 export function Dropdown(anchor, dropdown) {
-    let content = Val('');
-    async function remove() {
+    let content = Val(''), target;
+    async function remove(e) {
+        if (e?.path.find(ee => ee == target)) return;
         window.removeEventListener('click', remove);
         await content()?.close?.();
         content('');
     }
-    return z['relative']({
-            onclick(e) {
-                e.stopPropagation();
+    return [
+        z({
+            on$created(e) { target = e.target },
+            onclick() {
                 window.addEventListener('click', remove);
-                content(Panel(dropdown(remove)));
+                content(Panel(dropdown(remove), target));
             }
-        },
-        anchor,
+        }, anchor),
         content
-    );
+    ]
 }
