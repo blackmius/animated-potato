@@ -6,10 +6,16 @@ import Breadcrumbs from "./breadcrumbs";
 
 export function SuppliesTable() {
     const table = Table([
-        { name: 'Дата' },
-        { name: 'Поставщик' },
-        { name: 'Сумма' }
-    ]);
+        { name: 'Дата', attr: 'data_postavki' },
+        { name: 'Поставщик', attr: 'naimenovanie' },
+        { name: 'Сумма', attr: 'summa' }
+    ], {
+        table: 'postavka',
+        join: 'inner join postavschik p on p.kod_postavschika = postavka.kod_postavschika',
+        pk: 'kod_postavki',
+        link: '/supplies'
+    });
+
     return z['p-4'](
         z['flex items-center'](
             z['text-2xl']('Поставки'),

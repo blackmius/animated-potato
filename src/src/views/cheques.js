@@ -7,10 +7,15 @@ import Table from "./table";
 
 export function ChequesTable() {
     const table = Table([
-        { name: 'Дата' },
-        { name: 'Сотрудник' },
-        { name: 'Сумма' }
-    ]);
+        { name: 'Дата', attr: 'data_prodazhi' },
+        { name: 'Сотрудник', attr: 'Concat(s.familya," ",s.imya," ",s.otchestvo)' },
+        { name: 'Сумма', attr: 'summa_checka' }
+    ], {
+        table: '`check`',
+        join: 'join sotrudnik s on s.kod_sotrudnika = check.kod_sotrudnika',
+        pk: 'kod_checka',
+        link: '/cheques'
+    });
     return z['p-4'](
         z['flex items-center'](
             z['text-2xl']('Чеки'),

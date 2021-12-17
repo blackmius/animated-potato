@@ -19,7 +19,7 @@ export default function Table(columns, options={}) {
     const filters = { rowsPerPage: 10, skip: 0, count: 0 };
     let data = Val([]), loading = Val(false), loadingError = Val('');
     function load() {
-        const qs = `select ${options.pk},${columns.map(c => c.attr).join(',')} from ${options.table} limit ${filters.rowsPerPage} offset ${filters.skip}`;
+        const qs = `select ${options.pk},${columns.map(c => c.attr).join(',')} from ${options.table} ${options.join || ''} limit ${filters.rowsPerPage} offset ${filters.skip}`;
         const cq = `select count(*) from ${options.table}`;
         data([]);
         loadingError('');
@@ -67,7 +67,7 @@ export default function Table(columns, options={}) {
                     disabled: filters.skip - filters.rowsPerPage < 0
                 }),
                 iconButton(icons.chevronRight, _ => { filters.skip += filters.rowsPerPage; load(); }, {
-                    disabled: filters.skip + filters.rowsPerPage > filters.count
+                    disabled: filters.skip + filters.rowsPerPage >= filters.count
                 }),
                 iconButton(icons.chevronDoubleRight, _ => { filters.skip = filters.count - filters.rowsPerPage; load(); }, {
                     disabled: filters.rowsPerPage > filters.count

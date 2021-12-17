@@ -7,10 +7,13 @@ import Breadcrumbs from "./breadcrumbs";
 
 export function SuppliersTable() {
     const table = Table([
-        { name: 'Наименование организации' },
-        { name: 'Контакты' },
-        { name: 'Адрес' }
-    ]);
+        { name: 'Наименование организации', attr: 'naimenovanie' },
+    ], {
+        table: 'postavschik',
+        pk: 'kod_postavschika',
+        link: '/suppliers'
+    });
+
     return z['p-4'](
         z['flex items-center'](
             z['text-2xl']('Поставщики'),

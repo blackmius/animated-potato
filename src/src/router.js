@@ -13,7 +13,7 @@ function getFragment() {
 }
 
 let current, currentState = {}, page=Val(''), unknown;
-const render = throttle(10, function render() {
+const render = throttle(100, function render() {
     const frag = getFragment()
     const result = Object.entries(routes).some(([route, cb]) => {
         const match = frag.match(route);

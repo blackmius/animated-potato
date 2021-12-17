@@ -8,10 +8,15 @@ import Button from "./button";
 
 export function EmployeesTable() {
     const table = Table([
-        { name: 'ФИО' },
-        { name: 'Телефон' },
-        { name: 'Должность' }
-    ]);
+        { name: 'ФИО', attr: 'Concat(familya," ",imya," ",otchestvo)' },
+        { name: 'Телефон', attr: 'telefon' },
+        { name: 'Должность', attr: 'naimenovanie' }
+    ], {
+        table: 'sotrudnik',
+        join: 'inner join dolzhnost d on d.kod_dolzhnosti = sotrudnik.kod_dolzhnosti',
+        pk: 'kod_sotrudnika',
+        link: '/employees'
+    });
     return z['p-4'](
         z['flex items-center'](
             z['text-2xl']('Сотрудники'),
