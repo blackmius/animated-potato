@@ -118,4 +118,4 @@ export function attach(el) {
 
 export const body = attach(document.body);
 export const Val = body.Val;
-export const Ref = (o, f) => (...v) => v.length === 0 ? o[f] : (o[f] = v[0], body.update());
+export const Ref = (o, f, ff) =>  (...v) => v.length === 0 ? o[f] : (o[f] = v[0], ff && ff(v[0]), body.update());

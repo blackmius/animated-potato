@@ -30,7 +30,7 @@ export function SuppliesTable() {
     )
 }
 
-export function SuppliesForm(id) {
+export function SuppliesForm(id, state) {
     const table = Table([
         { name: 'Номенклатура' },
         { name: 'Дата производства' },

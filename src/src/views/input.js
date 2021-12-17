@@ -1,10 +1,19 @@
 import { icons } from ".";
 import { z, body } from "../z/z3.9";
 import { Dropdown } from "./dropdown";
+import IMask from '../imask.js';
 
 const InputEvents = (value, options) => ({
     on$created(e) {
-        options.target = e.target
+        options.target = e.target;
+        if (options.imask) {
+            e.target.value = value();
+            options._imask = IMask(e.target, options.imask);
+            options._imask.on('complete', _ => value(options._imask.unmaskedValue))
+        }
+    },
+    on$destroyed() {
+        if (options._imask) options._imask.destroy();
     },
     onfocus() {
         options.focused = true;
@@ -16,8 +25,7 @@ const InputEvents = (value, options) => ({
     },
     oninput(e) {
         options.error = '';
-        value(e.target.value);
-        body.update();
+        if (!options._imask) value(e.target.value);
     }
 })
 
@@ -27,7 +35,12 @@ export const Input = (value, options={}) => z.Input['w-full px-3 py-2 transition
         'border-gray-300 hover:border-gray-400 focus:border-[#dd88c1]': !options.error
     }),
     ...InputEvents(value, options),
-    value, ...options
+    value: options.imask ? undefined : value,
+    ...options
+}, _ => {
+    if (options._imask && options._imask.unmaskedValue != value()) {
+        options._imask.value = value();
+    }
 })
 
 const extend = t => t === ''

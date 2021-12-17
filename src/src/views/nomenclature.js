@@ -73,19 +73,21 @@ export function NomenclatureForm(id) {
             Check(Ref(data, 'otpuskaetsa_po_receptu'), 'Продается по рецепту')
         ),
         z['mt-4'],
-        z['w-full p-4 bg-[#dd88c1] transition text-white sticky bottom-4 rounded text-center font-medium cursor-pointer hover:bg-[#d874b6] active:bg-[#d260ac]']({
-            onclick() { create(); }
-        }, id === 'new' ? 'Создать' : 'Сохранить'),
+        z['sticky bottom-4'](
+            z['w-full p-4 bg-[#dd88c1] transition text-white rounded text-center font-medium cursor-pointer hover:bg-[#d874b6] active:bg-[#d260ac]']({
+                onclick() { create(); }
+            }, id === 'new' ? 'Создать' : 'Сохранить'),
 
-        id === 'new' ? z['w-full mt-4 p-4 bg-[#dd88c1] transition text-white sticky bottom-4 rounded text-center font-medium cursor-pointer hover:bg-[#d874b6] active:bg-[#d260ac]']({
-            onclick() { create(true); }
-        }, 'Создать и открыть новую форму') : '',
+            id === 'new' ? z['w-full mt-4 p-4 bg-[#dd88c1] transition text-white rounded text-center font-medium cursor-pointer hover:bg-[#d874b6] active:bg-[#d260ac]']({
+                onclick() { create(true); }
+            }, 'Создать и открыть новую форму') : '',
 
-        id !== 'new' ? z['w-full mt-4 p-4 bg-[#dd88c1] transition text-white sticky bottom-4 rounded text-center font-medium cursor-pointer hover:bg-[#d874b6] active:bg-[#d260ac]']({
-            onclick() {
-                q(`delete from preparat where kod_preparata=?`, [id])
-                .then(i => router.navigate('/nomenclature'));
-            }
-        }, 'Удалить') : ''
+            id !== 'new' ? z['w-full mt-4 p-4 bg-[#dd88c1] transition text-white rounded text-center font-medium cursor-pointer hover:bg-[#d874b6] active:bg-[#d260ac]']({
+                onclick() {
+                    q(`delete from preparat where kod_preparata=?`, [id])
+                    .then(i => router.navigate('/nomenclature'));
+                }
+            }, 'Удалить') : ''
+        )
     )
 }

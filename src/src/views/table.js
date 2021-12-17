@@ -18,19 +18,22 @@ const iconButton = (icon, onclick, { disabled }={}) =>
 export default function Table(columns, options={}) {
     const filters = { rowsPerPage: 10, skip: 0, count: 0 };
     let data = Val([]), loading = Val(false), loadingError = Val('');
+    const attrs = columns.map(c => c.attr).concat([options.pk]).join(',');
+    const join = options.join || '';
+    const where = options.filter ? 'where '+options.filter[0] : '';
+    const cq = `select count(*) from ${options.table} ${join} ${where}`;
+    const qs = `select ${attrs} from ${options.table} ${join} ${where}`;
     function load() {
-        const qs = `select ${options.pk},${columns.map(c => c.attr).join(',')} from ${options.table} ${options.join || ''} limit ${filters.rowsPerPage} offset ${filters.skip}`;
-        const cq = `select count(*) from ${options.table}`;
         data([]);
         loadingError('');
         loading(true);
         Promise.all([
-            q(qs).then(data),
-            q(cq).then(r => (filters.count = r[0]['count(*)'], body.update()))
+            q(qs + ` limit ${filters.rowsPerPage} offset ${filters.skip}`, options.filter?.[1] || []).then(data),
+            q(cq, options.filter?.[1] || []).then(r => (filters.count = r[0]['count(*)'], body.update()))
         ]).catch(loadingError).finally(i => loading(false));
     }
     load();
-    return z['shadow overflow-hidden border-b border-gray-200 sm:rounded-lg'](
+    return Object.assign(z['shadow overflow-hidden border-b border-gray-200 sm:rounded-lg'](
         z.Table['min-w-full divide-y divide-gray-200'](
             z.Thead['bg-gray-50'](z.Tr(columns.map(
                 c => z.Th['px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'](c.name)
@@ -38,6 +41,9 @@ export default function Table(columns, options={}) {
             z.Tbody['bg-white divide-y divide-gray-200'](
                 _=>data().map(r => z.Tr({
                     onclick() { 
+                        if (options.onclick) {
+                            options.onclick(r[options.pk]);
+                        }
                         if (options.link) {
                             router.navigate(options.link+'/'+r[options.pk])
                         }
@@ -74,5 +80,7 @@ export default function Table(columns, options={}) {
                 })
             ]
         )
-    );
+    ), {
+        load
+    });
 }
