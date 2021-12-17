@@ -58,7 +58,7 @@ export default function Table(columns, options={}) {
                         }
                     }
                 }, columns.map(v => z.Td['px-6 py-4 whitespace-nowrap'](r[v.attr])))),
-                _ => aggr.length === 0 ? '' :
+                _ => aggr.length === 0 || loading() || loadingError() || data().length === 0 ? '' :
                     z.Tr(columns.map(v => z.Td['px-6 py-4 whitespace-nowrap text-gray-500 bg-gray-50'](
                         v.aggr ? aggrData()[`${v.aggr}(${v.attr})`] : ''
                     )))

@@ -216,10 +216,10 @@ export function EmployeesForm(id) {
             z['flex items-center mt-8'](
                 z['text-4xl']('Продажи сотрудника'),
                 z['flex-1'],
-                // z['flex text-xl items-center cursor-pointer transition hover:text-[#dd88c1]'](
-                //     { onclick() { } },
-                //     icons.plus, z['ml-4'], 'Добавить'
-                // ),
+                z['flex text-xl items-center cursor-pointer transition hover:text-[#dd88c1]'](
+                    { onclick() { router.navigate('/cheques/new', { employee: id }) } },
+                    icons.plus, z['ml-4'], 'Добавить'
+                ),
                 z['ml-4']
             ),
             z['mt-4'],

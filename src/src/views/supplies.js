@@ -34,10 +34,10 @@ export function SuppliesTable() {
     )
 }
 
-export function SuppliesForm(id, state) {
+export function SuppliesForm(id) {
     const data = {
-        kod_postavschika: this.supplier || '',
-        data_postavki: '',
+        kod_postavschika: +this.supplier || '',
+        data_postavki: new Date().toISOString().split('T')[0],
         summa: ''
     };
 
