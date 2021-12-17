@@ -51,7 +51,92 @@ export function ChequesForm(id) {
         body.update();
     });
 
-    const modal = Modal();
+    /*
+    `kod_checka` int NOT NULL,
+  `kod_preparata` int NOT NULL,
+  `kolichestvo_upakovok` int NOT NULL,
+  `summa` decimal(15,2) NOT NULL,
+    */
+    const modal = Modal(nomenclatureId => {
+        const data = {
+            kod_preparata: nomenclatureId,
+            kod_checka: id,
+            kolichestvo_upakovok: '',
+            summa: ''
+        }
+        const options = {
+            kod_preparata: { values: [] },
+            kolichestvo_upakovok: { type: 'number' },
+            price: { disabled: true }
+        }
+        
+        q(`select kod_preparata as value, nazvanie as name, cena_v_prodazhe as price from preparat p
+            where not exists (
+                select 1 from prodazha n
+                where n.kod_preparata = p.kod_preparata
+                    and n.kod_checka = ?
+        )`, [id]).then(r => {
+            options.kod_preparata.values = r;
+            if (nomenclatureId === 'new') data.kod_preparata = r[0].value;
+            body.update();
+        })
+        
+        if (nomenclatureId !== 'new') {
+            q(`select ${Object.keys(data).join(',')} from prodazha where kod_checka=? and kod_preparata=?`, [id, nomenclatureId])
+            .then(r=>{
+                Object.assign(data, r[0]);
+                body.update()
+            });
+        }
+        return z['p-2'](
+            z['text-2xl'](nomenclatureId === 'new' ? 'Добавить Позицию в чек' : 'Редактировать запись чека'),
+            z['mt-8'],
+            nomenclatureId === 'new'
+                ? NamedSelect('Номенклатура', Ref(data, 'kod_preparata'), options.kod_preparata)
+                : z['flex items-center min-w-[260px] w-full px-3 py-2 transition-colors border rounded-md outline-none bg-white'](
+                    _ => options.kod_preparata.values.find(i => i.value === data.kod_preparata).name,
+                    z['flex-1'],
+                    icons.chevronDown
+                ),
+            z['mt-4 flex'](
+                NamedInput('Цена',
+                    _ => options.kod_preparata.values.find(i => i.value === data.kod_preparata).price,
+                    options.price),
+                z['ml-4'],
+                NamedInput('Количество', Ref(data, 'kolichestvo_upakovok'), options.kolichestvo_upakovok),
+            ),
+            z['flex mt-4'](
+                z['flex-1'],
+                nomenclatureId === 'new' ? '' :
+                    Button('Удалить', async () => {
+                        await q('delete from prodazha where kod_checka=? and kod_preparata=?', [id, nomenclatureId])
+                        modal.close();
+                        table.load();
+                    }),
+                Button(nomenclatureId === 'new' ? 'Добавить' : 'Сохранить', async () => {
+                    if (data.kod_preparata.length === 0) {
+                        options.kod_preparata.error = 'Значение не может быть пустым';
+                        body.update();
+                        return;
+                    }
+                    if (data.kolichestvo_upakovok.length === 0) {
+                        options.kolichestvo_upakovok.error = 'Значение не может быть пустым';
+                        body.update();
+                        return;
+                    }
+                    const price = options.kod_preparata.values.find(i => i.value === data.kod_preparata).price;
+                    data.summa = Number(price).toFixed(2) * Number(data.kolichestvo_upakovok).toFixed(2);
+                    const values = Object.entries(data)
+                    if (nomenclatureId !== 'new') {
+                        await q('delete from prodazha where kod_checka=? and kod_preparata=?', [id, nomenclatureId])
+                    }
+                    await q(`insert into prodazha(${values.map(v=>v[0]).join(',')}) values (${values.map(i=>'?').join(',')})`, values.map(v=>v[1]));
+                    modal.close();
+                    table.load();
+                })
+            )
+        )
+    });
 
     let table;
     if (id !== 'new') {

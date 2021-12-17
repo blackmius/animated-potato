@@ -31,8 +31,9 @@ const InputEvents = (value, options) => ({
 
 export const Input = (value, options={}) => z.Input['w-full px-3 py-2 transition-colors border rounded-md outline-none']({
     classes: _=>({
-        'border-red-700 hover:border-red-700 focus:border-red-700': options.error,
-        'border-gray-300 hover:border-gray-400 focus:border-[#dd88c1]': !options.error
+        'border-red-700 hover:border-red-700 focus:border-red-700': !options.disabled && options.error,
+        'border-gray-300 hover:border-gray-400 focus:border-[#dd88c1]': !options.disabled && !options.error,
+        'border-gray-300 text-gray-600 bg-gray-100': options.disabled,
     }),
     ...InputEvents(value, options),
     value: options.imask ? undefined : value,
@@ -83,7 +84,7 @@ const Label = (name, val, options={}, off=9, on=-14) => _ => {
             'mx-3': up,
             'mx-4': !up
         }
-    }, z['absolute bottom-[6px] w-full bg-white h-1 left-0'], z['relative'](name)),
+    }, z[`absolute bottom-[6px] w-full ${options.disabled ? 'bg-gray-100' : 'bg-white'} h-1 left-0`], z['relative'](name)),
     options.error ? z['text-red-700.mx-4.text-sm.mt-2'](options.error): ''
     ]
 }
