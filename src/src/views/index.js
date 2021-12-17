@@ -6,5 +6,7 @@ export { EmployeesTable, EmployeesForm } from './employees.js';
 export { SuppliersTable, SuppliersForm } from './suppliers.js';
 export { SuppliesTable, SuppliesForm } from './supplies.js';
 export { NomenclatureTable, NomenclatureForm } from './nomenclature.js';
-
+export { default as EmployeesReport } from './employeesReport.js';
+export { default as ProductsReport } from './productsReport.js';
+export { default as WarehouseReport } from './warehouseReport.js';
 export * as icons from './icons';

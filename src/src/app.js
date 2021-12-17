@@ -7,7 +7,8 @@ import {
     icons,
     NotFound, Welcome, Reports, ChequesTable, ChequesForm,
     EmployeesTable, EmployeesForm, SuppliersTable, SuppliersForm, SuppliesTable,
-    SuppliesForm, NomenclatureTable, NomenclatureForm
+    SuppliesForm, NomenclatureTable, NomenclatureForm, EmployeesReport, ProductsReport,
+    WarehouseReport
 } from './views/index.js';
 
 import './scaleApp.js';
@@ -15,6 +16,9 @@ import './scaleApp.js';
 const router = Router
     .register('^/$', Welcome)
     .register('^/reports$', Reports)
+    .register('^/reports/employees$', EmployeesReport)
+    .register('^/reports/products$', ProductsReport)
+    .register('^/reports/warehouse$', WarehouseReport)
     .register('^/cheques$', ChequesTable)
     .register('^/cheques/([a-z0-9]+)$', ChequesForm)
     .register('^/employees$', EmployeesTable)

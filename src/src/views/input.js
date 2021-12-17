@@ -109,12 +109,12 @@ export const Check = (value, label) => z.Label['flex items-center'](
     label
 );
 
-export const NamedSelect = (name, val, options={}) => z.Label.relative(
+export const NamedSelect = (name, val, options={}) => z.relative(
     Select(val, options),
     Label(name, val, options)
 )
 
-export const NamedInput = (name, val, options={}) => z.Label.relative(
+export const NamedInput = (name, val, options={}) => z.relative(
     Input(val, options),
     Label(name, val, options)
 );
