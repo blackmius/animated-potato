@@ -18,7 +18,8 @@ const iconButton = (icon, onclick, { disabled }={}) =>
 export default function Table(columns, options={}) {
     const filters = { rowsPerPage: 10, skip: 0, count: 0 };
     let data = Val([]), loading = Val(false), loadingError = Val('');
-    const attrs = columns.map(c => c.attr).concat([options.pk]).join(',');
+    let attrs = columns.map(c => c.attr);
+    if (options.pk) attrs = attrs.concat([options.pk]).join(',');
     const join = options.join || '';
     const where = options.filter ? 'where '+options.filter[0] : '';
     const cq = `select count(*) from ${options.table} ${join} ${where}`;
@@ -42,10 +43,10 @@ export default function Table(columns, options={}) {
                 _=>data().map(r => z.Tr({
                     onclick() { 
                         if (options.onclick) {
-                            options.onclick(r[options.pk]);
+                            options.onclick(options.pk ? r[options.pk] : r);
                         }
                         if (options.link) {
-                            router.navigate(options.link+'/'+r[options.pk])
+                            router.navigate(options.link+'/'+(options.pk ? r[options.pk] : ''), r)
                         }
                     }
                 }, columns.map(v => z.Td['px-6 py-4 whitespace-nowrap'](r[v.attr]))))

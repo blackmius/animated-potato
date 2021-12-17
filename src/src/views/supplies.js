@@ -31,13 +31,41 @@ export function SuppliesTable() {
 }
 
 export function SuppliesForm(id, state) {
-    const table = Table([
-        { name: 'Номенклатура' },
-        { name: 'Дата производства' },
-        { name: 'Цена закупки' },
-        { name: 'Количество' },
-        { name: 'Сумма' }
-    ]);
+    const data = {
+        kod_postavschika: '',
+        data_postavki: '',
+        summa: ''
+    };
+
+    const options = {
+        kod_postavschika: {},
+        data_postavki: {},
+    };
+
+    let invoice;
+    if (id !== 'new') {
+        /*
+        `kod_preparata` int NOT NULL,
+        `kod_postavki` int NOT NULL,
+        `data_proizvodstva` date NOT NULL,
+        `srok_godnosti` date NOT NULL,
+        `cena_zakupki` decimal(15,2) NOT NULL,
+        `kolichestvo` int NOT NULL,
+        `summa` decimal(15,2) NOT NULL,
+        */
+        invoice = Table([
+            { name: 'Номенклатура', attr: 'nazvanie' },
+            { name: 'Дата производства', attr: 'data_proizvodstva' },
+            { name: 'Цена закупки', attr: 'cena_zakupki' },
+            { name: 'Количество', attr: 'kolichestvo' },
+            { name: 'Сумма', attr: 'summa' }
+        ], {
+            table: 'nakladnaya n',
+            join: 'inner join preparat p on p.kod_preparata = n.kod_preparata',
+            filter: ['kod_postavki = ?', [id]],
+            onclick(e) { console.log(e) }
+        });
+    }
     return z['p-4'](
         Breadcrumbs(['/supplies', 'Поставки'], id === 'new' ? 'Новая поставка' : 'Редактирование поставки #'+id),
         z['mt-4'],
@@ -51,7 +79,7 @@ export function SuppliesForm(id, state) {
             z['ml-4']
         ),
         z['mt-4'],
-        table,
+        invoice,
         z['mt-4'],
         z['w-full p-4 bg-[#dd88c1] transition text-white sticky bottom-4 rounded text-center font-medium cursor-pointer hover:bg-[#d874b6] active:bg-[#d260ac]']('Сохранить'),
     )
