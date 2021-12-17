@@ -33,7 +33,7 @@ export const Input = (value, options={}) => z.Input['w-full px-3 py-2 transition
     classes: _=>({
         'border-red-700 hover:border-red-700 focus:border-red-700': !options.disabled && options.error,
         'border-gray-300 hover:border-gray-400 focus:border-[#dd88c1]': !options.disabled && !options.error,
-        'border-gray-300 text-gray-600 bg-gray-100': options.disabled,
+        'border-gray-300 bg-gray-100': options.disabled,
     }),
     ...InputEvents(value, options),
     value: options.imask ? undefined : value,
@@ -55,9 +55,10 @@ export const Text = (value, options) =>
             },
             style: 'min-height: 128px',
             classes: _=>({
-                'border-red-700 hover:border-red-700': options.error,
-                'border-[#dd88c1]': options.focused && !options.error,
-                'border-gray-300 hover:border-gray-400': !options.focused && !options.error
+                'border-red-700 hover:border-red-700': !options.disabled && options.error,
+                'border-[#dd88c1]': !options.disabled && options.focused && !options.error,
+                'border-gray-300 hover:border-gray-400': !options.disabled && !options.focused && !options.error,
+                'border-gray-300 bg-gray-100': options.disabled,
             }),
         },
         z.relative(
@@ -91,10 +92,12 @@ const Label = (name, val, options={}, off=9, on=-14) => _ => {
 
 export const Select = (value, options={}) =>
     Dropdown(
-        z['flex items-center min-w-[260px] w-full px-3 py-2 transition-colors border rounded-md outline-none cursor-pointer bg-white']({
+        z['flex items-center min-w-[260px] w-full px-3 py-2 transition-colors border rounded-md outline-none']({
             classes: _=>({
-                'border-red-700 hover:border-red-700 focus:border-red-700': options.error,
-                'border-gray-300 hover:border-gray-400': !options.error
+                'border-red-700 hover:border-red-700 focus:border-red-700': !options.disabled && options.error,
+                'border-gray-300 hover:border-gray-400': !options.disabled && !options.error,
+                'border-gray-300 bg-gray-100': options.disabled,
+                'bg-white cursor-pointer': !options.disabled
             }),
             ...InputEvents(value, options),
         },
@@ -102,7 +105,8 @@ export const Select = (value, options={}) =>
             z['flex-1'],
             icons.chevronDown
         ),
-        c => options.values.map(v => z['cursor-pointer']({ onclick() { value(v.value); c(); } }, v.name))
+        c => options.values.map(v => z['cursor-pointer']({ onclick() { value(v.value); c(); } }, v.name)),
+        options
     );
 
 export const Check = (value, label) => z.Label['flex items-center'](

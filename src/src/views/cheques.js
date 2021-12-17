@@ -2,6 +2,7 @@ import { icons } from ".";
 import { q } from "../api";
 import router from "../router";
 import { body, Ref, z } from "../z/z3.9";
+import { employee } from "./auth";
 import Breadcrumbs from "./breadcrumbs";
 import Button from "./button";
 import { NamedInput, NamedSelect } from "./input";
@@ -35,13 +36,13 @@ export function ChequesTable() {
 
 export function ChequesForm(id) {
     const data = {
-        kod_sotrudnika: +this.employee || '',
+        kod_sotrudnika: +this.employee || employee().kod_sotrudnika || '',
         data_prodazhi: new Date().toISOString().slice(0, -1),
         summa_checka: ''
     };
 
     const options = {
-        kod_sotrudnika: { values: [] },
+        kod_sotrudnika: { values: [], disabled: employee().kod_dolzhnosti === 1 },
         data_prodazhi: { type: 'datetime-local' },
     };
 
@@ -59,7 +60,7 @@ export function ChequesForm(id) {
     */
     const modal = Modal(nomenclatureId => {
         const data = {
-            kod_preparata: nomenclatureId,
+            kod_preparata: +nomenclatureId,
             kod_checka: id,
             kolichestvo_upakovok: '',
             summa: ''
@@ -70,23 +71,30 @@ export function ChequesForm(id) {
             price: { disabled: true }
         }
         
-        q(`select kod_preparata as value, nazvanie as name, cena_v_prodazhe as price from preparat p
-            where not exists (
-                select 1 from prodazha n
-                where n.kod_preparata = p.kod_preparata
-                    and n.kod_checka = ?
-        )`, [id]).then(r => {
-            options.kod_preparata.values = r;
-            if (nomenclatureId === 'new') data.kod_preparata = r[0].value;
-            body.update();
-        })
-        
         if (nomenclatureId !== 'new') {
+            q(`select kod_preparata as value, nazvanie as name, cena_v_prodazhe as price from preparat where kod_preparata=?`, [nomenclatureId]).then(r => {
+                console.log(r)
+                options.kod_preparata.values = r;
+                if (nomenclatureId === 'new') data.kod_preparata = r[0].value;
+                body.update();
+            })
             q(`select ${Object.keys(data).join(',')} from prodazha where kod_checka=? and kod_preparata=?`, [id, nomenclatureId])
             .then(r=>{
                 Object.assign(data, r[0]);
                 body.update()
             });
+        } else {
+            q(`select kod_preparata as value, nazvanie as name, cena_v_prodazhe as price from preparat p
+                where not exists (
+                    select 1 from prodazha n
+                    where n.kod_preparata = p.kod_preparata
+                        and n.kod_checka = ?
+            )`, [id]).then(r => {
+                console.log(r)
+                options.kod_preparata.values = r;
+                if (nomenclatureId === 'new') data.kod_preparata = r[0].value;
+                body.update();
+            })
         }
         return z['p-2'](
             z['text-2xl'](nomenclatureId === 'new' ? 'Добавить Позицию в чек' : 'Редактировать запись чека'),
@@ -94,13 +102,13 @@ export function ChequesForm(id) {
             nomenclatureId === 'new'
                 ? NamedSelect('Номенклатура', Ref(data, 'kod_preparata'), options.kod_preparata)
                 : z['flex items-center min-w-[260px] w-full px-3 py-2 transition-colors border rounded-md outline-none bg-white'](
-                    _ => options.kod_preparata.values.find(i => i.value === data.kod_preparata).name,
+                    _ => options.kod_preparata.values.find(i => i.value === data.kod_preparata)?.name,
                     z['flex-1'],
                     icons.chevronDown
                 ),
             z['mt-4 flex'](
                 NamedInput('Цена',
-                    _ => options.kod_preparata.values.find(i => i.value === data.kod_preparata).price,
+                    _ => options.kod_preparata.values.find(i => i.value === data.kod_preparata)?.price,
                     options.price),
                 z['ml-4'],
                 NamedInput('Количество', Ref(data, 'kolichestvo_upakovok'), options.kolichestvo_upakovok),

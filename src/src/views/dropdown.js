@@ -43,7 +43,7 @@ function Panel(c, p) {
         });
 }
 
-export function Dropdown(anchor, dropdown) {
+export function Dropdown(anchor, dropdown, options={}) {
     let content = Val(''), target;
     async function remove(e) {
         if (e?.path.find(ee => ee == target)) return;
@@ -55,6 +55,7 @@ export function Dropdown(anchor, dropdown) {
         z({
             on$created(e) { target = e.target },
             onclick() {
+                if (options.disabled) return;
                 window.addEventListener('click', remove);
                 content(Panel(dropdown(remove), target));
             }

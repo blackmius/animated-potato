@@ -6,6 +6,7 @@ import { NamedInput, NamedSelect } from "./input";
 import Breadcrumbs from "./breadcrumbs";
 import Button from "./button";
 import { q } from "../api";
+import { employee } from "./auth";
 
 export function EmployeesTable() {
     const table = Table([
@@ -73,9 +74,9 @@ export function EmployeesForm(id) {
         kod_dolzhnosti: 1,
         zarplata: 9900,
         data_naima: '',
-        data_uvolneniya: '',
-        kod_avtorizacii: makeid(32)
+        data_uvolneniya: ''
     };
+    if (employee().kod_dolzhnosti === 3) data.kod_avtorizacii = makeid(32);
     const options = {
         familya: { maxlength: 256 },
         imya: { maxlength: 256 },
@@ -98,6 +99,10 @@ export function EmployeesForm(id) {
         data_uvolneniya: { type: 'date' },
         kod_avtorizacii: { maxlength: 32 }
     };
+    
+    if (employee().kod_dolzhnosti === 1) {
+        for (const key in options) options[key].disabled = true;
+    }
 
     q('select kod_dolzhnosti, naimenovanie from dolzhnost').then(r => {
         options.kod_dolzhnosti.values = r.map(v => ({ value: v.kod_dolzhnosti, name: v.naimenovanie }));
@@ -155,7 +160,7 @@ export function EmployeesForm(id) {
             options.data_naima.error = 'Поле Дата найма не может быть пустым';
             cancel = true;
         }
-        if (data.kod_avtorizacii.length == 0) {
+        if (employee().kod_dolzhnosti === 3 && data.kod_avtorizacii.length == 0) {
             options.kod_avtorizacii.error = 'Поле Код авторизации не может быть пустым';
             cancel = true;
         }
@@ -207,26 +212,29 @@ export function EmployeesForm(id) {
             z['ml-4'],
             NamedInput('Дата увольнения', Ref(data, 'data_uvolneniya'), options.data_uvolneniya),
         ),
-        z['text-4xl mt-8']('Учетные данные пользователя системы'),
-        z['w-96 mt-4'](
-            NamedInput('Ключ авторизации *', Ref(data, 'kod_avtorizacii'), options.kod_avtorizacii),
-        ),
-
+        employee().kod_dolzhnosti === 3 ? z(
+            z['text-4xl mt-8']('Учетные данные пользователя системы'),
+            z['w-96 mt-4'](
+                NamedInput('Ключ авторизации *', Ref(data, 'kod_avtorizacii'), options.kod_avtorizacii),
+            ),
+        ) : '',
         id !== 'new' ? z(
             z['flex items-center mt-8'](
                 z['text-4xl']('Продажи сотрудника'),
                 z['flex-1'],
-                z['flex text-xl items-center cursor-pointer transition hover:text-[#dd88c1]'](
-                    { onclick() { router.navigate('/cheques/new', { employee: id }) } },
-                    icons.plus, z['ml-4'], 'Добавить'
-                ),
+                employee().kod_dolzhnosti === 2 || employee().kod_dolzhnosti === 3 ?
+                    z['flex text-xl items-center cursor-pointer transition hover:text-[#dd88c1]'](
+                        { onclick() { router.navigate('/cheques/new', { employee: id }) } },
+                        icons.plus, z['ml-4'], 'Добавить'
+                    )
+                    : '',
                 z['ml-4']
             ),
             z['mt-4'],
             chequesTable
         ) : '',
         z['mt-8'],
-        z['sticky bottom-4'](
+        employee().kod_dolzhnosti === 2 || employee().kod_dolzhnosti === 3 ? z['sticky bottom-4'](
             z['w-full p-4 bg-[#dd88c1] transition text-white rounded text-center font-medium cursor-pointer hover:bg-[#d874b6] active:bg-[#d260ac]']({
                 onclick() { create(); }
             }, id === 'new' ? 'Создать' : 'Сохранить'),
@@ -241,6 +249,6 @@ export function EmployeesForm(id) {
                     .then(i => router.navigate('/employees'));
                 }
             }, 'Удалить') : ''
-        )
+        ) : ''
     )
 }
