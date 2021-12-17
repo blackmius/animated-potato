@@ -80,7 +80,7 @@ export function SuppliersForm(id) {
             });
         }
         return z['p-2'](
-            z['text-2xl']('Создание контакта'),
+            z['text-2xl']((contactId === 'new' ? 'Создание' : 'Редактирование' ) + ' контакта'),
             z['mt-8'],
             NamedSelect('Тип контакта', Ref(data, 'kod_tipa_kontakta'), options.kod_tipa_kontakta),
             z['mt-4'],

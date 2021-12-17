@@ -1,6 +1,6 @@
 import { z, Val } from "../z/z3.9"
 
-export default function(fn) {
+export default function Modal(fn) {
     const c = Val('');
     let overlay;
     return Object.assign(c, {
