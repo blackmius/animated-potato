@@ -47,7 +47,10 @@ export default function Table(columns, options={}) {
                 c => z.Th['px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'](c.name)
             ))),
             z.Tbody['bg-white divide-y divide-gray-200'](
-                _=>data().map(r => z.Tr['transition hover:bg-pink-50 cursor-pointer']({
+                _=>data().map(r => z.Tr({
+                    classes: {
+                        'transition hover:bg-pink-50 cursor-pointer': !!(options.onclick || options.link)
+                    },
                     onclick() { 
                         if (options.onclick) {
                             options.onclick(options.pk ? r[options.pk] : r);

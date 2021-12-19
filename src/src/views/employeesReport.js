@@ -6,6 +6,7 @@ import Breadcrumbs from "./breadcrumbs";
 import Button from "./button";
 import { NamedInput, NamedSelect } from "./input";
 import { Doughnut, Hist } from './chart';
+import Table from "./table";
 
 function declOfNum(number, titles) {  
     const cases = [2, 0, 1, 1, 1, 2];  
@@ -80,9 +81,17 @@ const rubFormater = new Intl.NumberFormat('ru-RU', { style: 'currency', currency
 
 function report(data, options) {
     let employeeData = {}, loading = true;
+    const table = Table([
+        { name: 'Дата', attr: 'data_prodazhi'  },
+        { name: 'Сумма', attr: 'summa_checka', aggr: 'sum' }
+    ], {
+        table: '`check`',
+        filter: ['kod_sotrudnika = ? and date(data_prodazhi) >= date(?) and date(data_prodazhi) <= date(?)', [data.employee, data.start, data.end]],
+        pk: 'kod_checka',
+    });
     Promise.all([
         q('select * from sotrudnik where kod_sotrudnika = ?', [data.employee]).then(i => Object.assign(employeeData, i[0])),
-        q('select data_prodazhi, summa_checka from `check` where kod_sotrudnika = ?', [data.employee]).then(i => {
+        q('select data_prodazhi, summa_checka from `check` where kod_sotrudnika = ? and date(data_prodazhi) >= date(?) and date(data_prodazhi) <= date(?)', [data.employee, data.start, data.end]).then(i => {
             data.sales = i;
             data.totalSales = data.sales.reduce((a, b) => a + Number(b.summa_checka), 0);
         })
@@ -93,9 +102,9 @@ function report(data, options) {
         loading = false;
         body.update();
     })
-    return z['p-4 h-full'](
+    return z['p-4'](
         Breadcrumbs(['/reports', 'Отчеты'], 'Производительность сотрудника'),
-        _ => loading ? z['flex items-center justify-center h-full'](icons.loading, z['ml-4'], 'Формирование') : z(
+        _ => loading ? z['flex items-center justify-center h-full w-full fixed'](icons.loading, z['ml-4'], 'Формирование') : z(
             z['mt-8'],
             z['text-2xl']('Отчет с ' + (new Date(data.reportStart)).toISOString().split('T')[0] + ' по ' + (new Date(data.reportEnd)).toISOString().split('T')[0]),
             z['text-2xl'](employeeData['familya'] + ' ' + employeeData['imya'] + ' ' + employeeData['otchestvo']),
@@ -109,10 +118,13 @@ function report(data, options) {
                 ' (', rubFormater(data.totalSalary) + ' зараплаты отдано за это время)'
             ),
             z.flex(
-                Doughnut(['Выплачено заработной платы', 'Сумма продаж'], [data.totalSalary, data.totalSales])
+                Doughnut(['Выплачено заработной платы', 'Сумма продаж'], [data.totalSalary, data.totalSales]),
+                z['flex-1'](
+                    Hist(data.sales, data.reportStart, data.reportEnd)
+                )
             ),
             z['mt-4'],
-            Hist(data.sales, data.reportStart, data.reportEnd)
+            table
         )
     );
 }
@@ -135,5 +147,9 @@ export default function EmployeesReport() {
     const p = Val(reportModal(data, options, _ => {
         p(report(data, options));
     }));
+    data.start ='2021-12-01';
+    data.end = '2021-12-31';
+    data.employee = 1;
+    p(report(data, options));
     return p
 }

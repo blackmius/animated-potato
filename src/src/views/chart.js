@@ -106,7 +106,7 @@ export function Doughnut(labels, values) {
 };
 
 export function Hist(data, from, to) {
-    return z({on$created(e) { setTimeout(_ => {
+    return z.relative({on$created(e) { setTimeout(_ => {
         var margin = {top: 40, right: 30, bottom: 30, left: 40},
             width = e.target.clientWidth - margin.left - margin.right,
             height = 400 - margin.top - margin.bottom;
@@ -133,6 +133,37 @@ export function Hist(data, from, to) {
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+        var Tooltip = d3.select(e.target)
+            .append("div")
+            .style("opacity", 0)
+            .style("position", "absolute")
+            .style("background-color", "white")
+            .style("border", "solid")
+            .style("border-width", "2px")
+            .style("border-radius", "5px")
+            .style("padding", "5px")
+        
+        var mouseover = function(d) {
+            Tooltip
+                .style("opacity", 1)
+            d3.select(this)
+                .style("opacity", 1)
+        }
+        var mousemove = function(e, d) {
+            const v = d.reduce((a, b) => a + b.value, 0);
+            //console.log(d3.pointer(e)[0] + x(d.x1) + 200 < width ? 70 : 0)
+            Tooltip
+                .html('Сумма продаж за ' + d.x1.toISOString().split('T')[0] + "<br>" + v)
+                .style("left", (d3.pointer(e)[0] + x(d.x1) + (d3.pointer(e)[0] + x(d.x1) + 200 < width ? 70 : -200)) + "px")
+                .style("top", (d3.pointer(e)[1] + 15) + "px");
+        }
+        var mouseleave = function(d) {
+            Tooltip
+                .style("opacity", 0)
+            d3.select(this)
+                .style("opacity", 0.8)
+        }
+
         // format the data
         data.forEach(function(d) {
             d.date = new Date(d.data_prodazhi);
@@ -148,19 +179,22 @@ export function Hist(data, from, to) {
             // append the bar rectangles to the svg element
             svg.selectAll("rect")
             .data(bins)
-                .enter().append("rect")
+                .join("rect")
                 .attr("class", "bar")
                 .attr("x", 1)
                 .attr("transform", function(d) {
                     const v = d.reduce((a, b) => a + b.value, 0);
                     return "translate(" + x(d.x0) + "," + y(v) + ")";
                 })
-                .attr("width", function(d) { return x(d.x1) - x(d.x0) -1 ; })
+                .attr("width", function(d) { return x(d.x1) - x(d.x0) ; })
                 .attr("height", function(d) {
                     const v = d.reduce((a, b) => a + b.value, 0);
                     return height - y(v);
                 })
-                .attr("fill", '#5bb79d')
+                .attr("fill", '#d95f02')
+                .on("mouseover", mouseover)
+                .on("mousemove", mousemove)
+                .on("mouseleave", mouseleave)
         }
         // add the x Axis
         svg.append("g")
