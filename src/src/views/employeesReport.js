@@ -147,9 +147,5 @@ export default function EmployeesReport() {
     const p = Val(reportModal(data, options, _ => {
         p(report(data, options));
     }));
-    data.start ='2021-12-01';
-    data.end = '2021-12-31';
-    data.employee = 1;
-    p(report(data, options));
     return p
 }
