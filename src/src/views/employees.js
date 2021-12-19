@@ -140,11 +140,11 @@ export function EmployeesForm(id) {
             options.imya.error = 'Поле Имя не может быть пустым';
             cancel = true;
         }
-        if (data.seriya_pasporta.trim() === '') {
+        if (data.seriya_pasporta.trim() === '' || data.seriya_pasporta === '0000') {
             options.seriya_pasporta.error = 'Поле Серия паспорта не может быть пустым';
             cancel = true;
         }
-        if (data.nomer_pasporta.trim() === '') {
+        if (data.nomer_pasporta.trim() === '' || data.seriya_pasporta === '000000') {
             options.nomer_pasporta.error = 'Поле Номер паспорта не может быть пустым';
             cancel = true;
         }
@@ -168,10 +168,11 @@ export function EmployeesForm(id) {
             body.update();
             return;
         }
+        if (data.data_uvolneniya == '') data.data_uvolneniya = null;
         const values = Object.entries(data)
         if (id === 'new') {
             q(`insert into sotrudnik(${values.map(v=>v[0]).join(',')}) values (${values.map(i=>'?').join(',')})`, values.map(v=>v[1])).then(i => {
-                router.navigate('/employee/'+ (open_new ? 'new' : i.insertId))
+                router.navigate('/employees/'+ (open_new ? 'new' : i.insertId))
             })
         } else {
             q(`update sotrudnik set ${values.map(v=>v[0]+'=?').join(',')} where kod_sotrudnika=?`, values.map(v=>v[1]).concat([id]))

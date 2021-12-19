@@ -33,15 +33,29 @@ export function NomenclatureForm(id) {
     const data = {
         nazvanie: '',
         cena_v_prodazhe: 0,
-        otpuskaetsa_po_receptu: false
+        otpuskaetsa_po_receptu: false,
+        kod_atx: '',
+        vid: '',
+        sezoniy: false
     };
     const options = {
         nazvanie: {},
         cena_v_prodazhe: { type: 'number' },
+        otpuskaetsa_po_receptu: {},
+        kod_atx: {
+            imask: {
+                mask: 'A00AA00',
+                blocks: {
+                    A: { mask: /^[A-V]$/ }
+                }
+            }
+        },
+        vid: { values: [] },
+        sezoniy: {}
     };
 
     if (id !== 'new') {
-        q('select nazvanie, cena_v_prodazhe, otpuskaetsa_po_receptu from preparat where kod_preparata=?', [id])
+        q(`select ${Object.keys(data).join(',')} from preparat where kod_preparata=?`, [id])
         .then(r=>{ Object.assign(data, r[0]); body.update() })
     }
 
@@ -70,7 +84,14 @@ export function NomenclatureForm(id) {
             NamedInput('Цена в продаже', Ref(data, 'cena_v_prodazhe'), options.cena_v_prodazhe)
         ),
         z['flex mt-4'](
-            Check(Ref(data, 'otpuskaetsa_po_receptu'), 'Продается по рецепту')
+            z['w-96'](NamedSelect('Фармако-терапевтическая группа', Ref(data, 'vid'), options.vid)),
+            z['ml-4'],
+            NamedInput('Код АТХ', Ref(data, 'kod_atx'), options.kod_atx)
+        ),
+        z['flex mt-4'](
+            Check(Ref(data, 'otpuskaetsa_po_receptu'), 'Продается по рецепту'),
+            z['ml-4'],
+            Check(Ref(data, 'sezoniy'), 'Сезонный')
         ),
         z['mt-4'],
         z['sticky bottom-4'](

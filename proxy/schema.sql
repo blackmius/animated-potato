@@ -219,6 +219,32 @@ INSERT INTO `postavschik` VALUES (1,'Фарма-1','5905066328','7700000000000')
 /*!40000 ALTER TABLE `postavschik` ENABLE KEYS */;
 UNLOCK TABLES;
 
+
+--
+-- Table structure for table `vid_preparata`
+--
+
+DROP TABLE IF EXISTS `vid_preparata`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `vid_preparata` (
+  `kod_vida` int NOT NULL AUTO_INCREMENT,
+  `nazvanie` varchar(256) NOT NULL,
+  PRIMARY KEY (`kod_vida`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3 COMMENT='Содержит список видов препаратов';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `vid_preparata`
+--
+
+LOCK TABLES `vid_preparata` WRITE;
+/*!40000 ALTER TABLE `vid_preparata` DISABLE KEYS */;
+INSERT INTO `vid_preparata` VALUES (1,'Седативное средство растительного происхождения'),(2,'Анальгезирующее средство'),(3,'Антипсихотический средство'),(4,'Пищеварительное ферментное средство'),(5,'Спазмолитическое средство');
+/*!40000 ALTER TABLE `vid_preparata` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
 --
 -- Table structure for table `preparat`
 --
@@ -231,6 +257,9 @@ CREATE TABLE `preparat` (
   `nazvanie` varchar(256) NOT NULL,
   `otpuskaetsa_po_receptu` tinyint NOT NULL,
   `cena_v_prodazhe` decimal(15,2) NOT NULL,
+  `kod_atx` char(7) NOT NULL,
+  `vid` int NOT NULL,
+  `sezoniy` tinyint NOT NULL,
   PRIMARY KEY (`kod_preparata`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3 COMMENT='Содержит основную информацию о препарате';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -241,7 +270,7 @@ CREATE TABLE `preparat` (
 
 LOCK TABLES `preparat` WRITE;
 /*!40000 ALTER TABLE `preparat` DISABLE KEYS */;
-INSERT INTO `preparat` VALUES (1,'Новопасит',0,479.00),(2,'Триганде',0,350.00),(3,'Галоперидол',1,500.00),(4,'Мезим',0,100.00),(5,'Ношпа',0,237.00);
+INSERT INTO `preparat` VALUES (1,'Новопасит',0,479.00,'N05CM00',1,0),(2,'Триганде',0,350.00,'N02BE51',1,0),(3,'Галоперидол',1,500.00,'N05AD01',1,1),(4,'Мезим',0,100.00,'A09AA02',1,0),(5,'Ношпа',0,237.00,'A03AD02',1,0);
 /*!40000 ALTER TABLE `preparat` ENABLE KEYS */;
 UNLOCK TABLES;
 
