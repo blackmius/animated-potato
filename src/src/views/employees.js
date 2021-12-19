@@ -156,6 +156,10 @@ export function EmployeesForm(id) {
             options.zarplata.error = 'Поле Зарплата не может быть отрицательным';
             cancel = true;
         }
+        if (data.data_uvolneniya && new Date(data.data_naima) > new Date(data.data_uvolneniya)) {
+            options.data_naima.error = 'Дата найма не может быть больше даты увольнения';
+            cancel = true;
+        }
         if (data.data_naima >= 0) {
             options.data_naima.error = 'Поле Дата найма не может быть пустым';
             cancel = true;

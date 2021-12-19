@@ -105,7 +105,7 @@ export const Select = (value, options={}) =>
             z['flex-1'],
             icons.chevronDown
         ),
-        c => options.values.map(v => z['cursor-pointer']({ onclick() { value(v.value); c(); } }, v.name)),
+        c => options.values.map(v => z['cursor-pointer']({ onclick() { options.error = ''; value(v.value); c(); } }, v.name)),
         options
     );
 
