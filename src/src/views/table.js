@@ -25,8 +25,9 @@ export default function Table(columns, options={}) {
     }
     const join = options.join || '';
     const where = options.filter ? 'where '+options.filter[0] : '';
-    const cq = `select count(*) from ${options.table} ${join} ${where}`;
-    const qs = `select ${attrs} from ${options.table} ${join} ${where}`;
+    const group = options.group ? 'group by '+options.group : '';
+    const cq = `select ${group ? 'count(distinct ' + options.group + ') as `count(*)`' : 'count(*)'} from ${options.table} ${join} ${where}`;
+    const qs = `select ${attrs} from ${options.table} ${join} ${where} ${group}`;
     let aggr = columns.filter(i => i.aggr).map(i => i.aggr+'('+i.attr+')').join(',');
     if (aggr.length) aggr = `select ${aggr} from ${options.table} ${where}`;
     function load() {
@@ -36,8 +37,8 @@ export default function Table(columns, options={}) {
         loading(true);
         Promise.all([
             q(qs + ` limit ${filters.rowsPerPage} offset ${filters.skip}`, options.filter?.[1] || []).then(data),
-            q(cq, options.filter?.[1] || []).then(r => (filters.count = r[0]['count(*)'], body.update())),
-            aggr ? q(aggr, options.filter?.[1] || []).then(i=>aggrData(i[0])) : ''
+            q(cq, options.filter?.[1] || []).then(r => r.length > 0 ? (filters.count = r[0]['count(*)'], body.update()) : 0),
+            aggr ? q(aggr, options.filter?.[1] || []).then(i=> i.length > 0 ? aggrData(i[0]) : '') : ''
         ]).catch(loadingError).finally(i => loading(false));
     }
     load();

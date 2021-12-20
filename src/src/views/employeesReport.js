@@ -5,8 +5,10 @@ import { body, Ref, Val, z } from "../z/z3.9";
 import Breadcrumbs from "./breadcrumbs";
 import Button from "./button";
 import { NamedInput, NamedSelect } from "./input";
-import { Doughnut, Hist } from './chart';
 import Table from "./table";
+
+import Chart from 'chart.js/auto';
+import 'chartjs-adapter-date-fns';
 
 function declOfNum(number, titles) {  
     const cases = [2, 0, 1, 1, 1, 2];  
@@ -117,12 +119,47 @@ function report(data, options) {
                 ' c ' + (new Date(data.reportStart)).toISOString().split('T')[0] + ' по ' + (new Date(data.reportEnd)).toISOString().split('T')[0],
                 ' (', rubFormater(data.totalSalary) + ' зараплаты отдано за это время)'
             ),
-            z.flex(
-                Doughnut(['Выплачено заработной платы', 'Сумма продаж'], [data.totalSalary, data.totalSales]),
-                z['flex-1'](
-                    Hist(data.sales, data.reportStart, data.reportEnd)
-                )
-            ),
+                z.flex(
+                    z['w-1/3'](
+                        z.Canvas({on$created(e) { new Chart(e.target, {
+                            data: {
+                                labels: ['Выплачено заработной платы', 'Сумма продаж'],
+                                datasets:[{
+                                    label: 'Отношение ЗП к продажам',
+                                    data: [data.totalSalary, data.totalSales],
+                                    backgroundColor: ['rgb(255, 99, 132)', 'rgb(54, 162, 235)']
+                                }],
+                            },
+                            options: {
+                                responsive: true,
+                            },
+                            type: 'doughnut'
+                        }) }})
+                    ),
+                    z['w-2/3'](
+                        z.Canvas({on$created(e) {
+                            new Chart(e.target, {
+                                data: {
+                                    datasets:[{
+                                        label: 'Сумма продаж',
+                                        data: data.sales.map(i => ({ x: i.data_prodazhi, y: i.summa_checka })),
+                                        backgroundColor: 'rgb(75, 192, 192)'
+                                    }],
+                                },
+                                options: {
+                                    responsive: true,
+                                    scales: {
+                                        x: {
+                                            type: 'time',
+                                            time: { unit: 'day', min: data.reportStart, max: data.reportEnd }
+                                        }
+                                    }
+                                },
+                                type: 'bar'
+                            })
+                        }})
+                    ),
+                ),
             z['mt-4'],
             table
         )
