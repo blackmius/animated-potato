@@ -185,9 +185,5 @@ export default function ProductsReport() {
     const p = Val(reportModal(data, options, _ => {
         p(report(data, options));
     }));
-    data.start = '2021-08-01';
-    data.end = '2021-12-31';
-    data.type = 1;
-    p(report(data, options));
     return p
 }
