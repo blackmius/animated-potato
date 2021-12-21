@@ -46,7 +46,7 @@ const menuItem = ([link, icon, name]) => z['p-3 w-full transition text-[#e9b0d6]
 
 const authToken = Val(''), authOptions = {};
 const app = _ => employee() != null ? z['flex h-full absolute top-0 right-0 left-0 bottom-0 font-sans'](
-    z['w-72 bg-[#101f37] pt-8 px-3 flex flex-col'](
+    z['w-72 bg-[#101f37] pt-8 px-3 flex flex-col print:hidden'](
         (
             employee()?.kod_dolzhnosti === 1 ? [
                 ['/', icons.home, 'Главная'],
@@ -64,7 +64,7 @@ const app = _ => employee() != null ? z['flex h-full absolute top-0 right-0 left
         ).map(menuItem)
     ),
     z['bg-gray-100 flex-1 flex flex-col'](
-        z['flex bg-white shadow px-4 py-2'](
+        z['flex bg-white shadow px-4 py-2 print:hidden'](
             z['flex-1'],
             z['cursor-pointer transition hover:text-gray-700 active:text-gray-900'](
                 {

@@ -36,6 +36,8 @@ export default function WarehouseReport() {
         _ => loading ? z['flex items-center justify-center h-full w-full fixed'](icons.loading, z['ml-4'], 'Формирование') : z(
             z['w-full mt-8'](
                 z.Canvas({
+                    height: data.length < 15 ? '500px' : (data.length * 24 + 'px'),
+                    width: 1580,
                     on$created(e) {
                         new Chart(e.target, {
                             data: {
@@ -43,12 +45,12 @@ export default function WarehouseReport() {
                                 datasets:[{
                                     label: 'Продажи',
                                     data: data.map(i => -i.s),
-                                    backgroundColor: 'rgb(255, 99, 132)'
+                                    backgroundColor: 'rgb(255, 99, 132)',
                                 },
                                 {
                                     label: 'Поступления',
                                     data: data.map(i => i.p),
-                                    backgroundColor: 'rgb(54, 162, 235)'
+                                    backgroundColor: 'rgb(54, 162, 235)',
                                 }],
                             },
                             options: {
@@ -56,7 +58,7 @@ export default function WarehouseReport() {
                                 scales: {
                                     y: { stacked: true }
                                 },
-                                responsive: true,
+                                responsive: false,
                                 maintainAspectRatio: false,
                                 plugins: {
                                     legend: {
