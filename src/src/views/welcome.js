@@ -3,6 +3,7 @@ import { employee } from "./auth";
 import { Link } from "./link";
 
 export default function Welcome(frag) {
+    document.title = 'Главная страница';
     return z['flex items-center justify-center h-full'](
         z['w-96'](
             z['text-4xl']('Добро пожаловать'),

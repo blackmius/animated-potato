@@ -91,7 +91,7 @@ const Label = (name, val, options={}, off=9, on=-14) => _ => {
             'mx-4': !up
         }
     }, z[`absolute bottom-[6px] w-full ${options.disabled ? 'bg-gray-100' : 'bg-white'} h-1 left-0`], z['relative'](name)),
-    options.error ? z['text-red-700.mx-4.text-sm.mt-2'](options.error): ''
+    options.error && options.error !== true ? z['text-red-700.mx-4.text-sm.mt-2'](options.error): ''
     ]
 }
 
@@ -132,14 +132,14 @@ export const Select = (value, options={}) =>
                     }, v.name))
                     : z['flex justify-center flex-col items-center'](
                         'Результатов не найдено',
-                        Button('Создать', async() => {
+                        options.create ? Button('Создать', async() => {
                             options.search = options.search.trim();
                             let name = options.search[0].toLocaleUpperCase() + options.search.slice(1).toLocaleLowerCase();
                             const id = (await options.create(name)).insertId;
                             options.values = await options.load();
                             value(id);
                             c();
-                        })
+                        }) : ''
                     );
             }
         ),

@@ -9,6 +9,8 @@ import Modal from "./modal.js";
 import Button from "./button";
 
 export function SuppliesTable() {
+    document.title = 'Поставки';
+
     const table = Table([
         { name: 'Дата', attr: 'data_postavki' },
         { name: 'Поставщик', attr: 'naimenovanie' },
@@ -35,6 +37,8 @@ export function SuppliesTable() {
 }
 
 export function SuppliesForm(id) {
+    document.title = (id !== 'new' ? 'Редактирование' : 'Добавление') + ' поставки';
+
     const data = {
         kod_postavschika: +this.supplier || '',
         data_postavki: new Date().toISOString().split('T')[0],
@@ -242,7 +246,21 @@ export function SuppliesForm(id) {
         }
     }
 
-    return z['p-4'](
+    const deleteModal = Modal(_ => z['p-2 w-[500px]'](
+        z['text-2xl']('Вы уверены что хотите удалить поставку'),
+        z['mt-4'],
+        z['text-lg']('После нажатия удалить, данные о поставке навсегда будут стерты из системы, и восстановить записи не получится, даже если очень надо'),
+        z['mt-4 flex'](
+            z['flex-1'],
+            Button('отмена', deleteModal.close),
+            Button('удалить', _ => {
+                q(`delete from postavka where kod_postavki=?`, [id])
+                    .then(i => router.navigate('/supplies'));
+            })
+        )
+    ));
+
+    return z['p-4']({ key: Math.random() },
         Breadcrumbs(['/supplies', 'Поставки'], id === 'new' ? 'Новая поставка' : 'Редактирование поставки #'+id),
         z['text-4xl mt-8']('Общая информация'),
         z['flex mt-8'](
@@ -275,11 +293,11 @@ export function SuppliesForm(id) {
 
             id !== 'new' ? z['w-full mt-4 p-4 bg-[#dd88c1] transition text-white rounded text-center font-medium cursor-pointer hover:bg-[#d874b6] active:bg-[#d260ac]']({
                 onclick() {
-                    q(`delete from postavka where kod_postavki=?`, [id])
-                    .then(i => router.navigate('/supplies'));
+                    deleteModal.open();
                 }
             }, 'Удалить') : ''
         ),
-        invoiceModal
+        invoiceModal,
+        deleteModal
     )
 }

@@ -10,6 +10,7 @@ import Chart from 'chart.js/auto';
 import Table from "./table";
 
 export default function WarehouseReport() {
+    document.title = 'Отчет остатков на складе';
     let data = [], loading = true;
     const table = Table([
         { name: 'Номенклатура', attr: 'nazvanie'  },

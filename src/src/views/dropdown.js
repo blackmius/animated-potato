@@ -5,6 +5,7 @@ function Panel(c, p) {
     let target;
     return Object.assign(
         z['absolute p-2 z-10 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none']({
+                key: Math.random(),
                 on$created(e) {
                     target = e.target;
                     Popper.createPopper(p, target, {
@@ -53,6 +54,7 @@ export function Dropdown(anchor, dropdown, options={}) {
     }
     return [
         z({
+            key: Math.random(),
             on$created(e) { target = e.target },
             onclick() {
                 if (options.disabled) return;

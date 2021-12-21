@@ -61,6 +61,7 @@ const COLORS = [
 ];
 
 function report(data, options) {
+    document.title = 'Отчета «Спрос на товары»';
     let loading = true;
     const table = Table([
         { name: 'Номенклатура', attr: 'nazvanie'  },
@@ -168,6 +169,7 @@ function report(data, options) {
 }
 
 export default function ProductsReport() {
+    document.title = 'Формирование отчета «Спрос на товары»';
     const data = {
         start: '',
         end: '',

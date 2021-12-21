@@ -2,6 +2,7 @@ import { z } from "../z/z3.9";
 import { Link } from "./link";
 
 export default function Reports() {
+    document.title = 'Отчеты';
     return z['flex items-center justify-center h-full'](
         z['w-96'](
             z['text-4xl']('Выберите отчет'),

@@ -1,6 +1,7 @@
 import { z } from "../z/z3.9";
 
 export default function NotFound(frag) {
+    document.title = 'Страница не найдена';
     return z['flex items-center justify-center h-full'](
         z['w-96'](
             z['text-4xl']('Страница не найдена'),

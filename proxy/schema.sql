@@ -34,8 +34,7 @@ CREATE TABLE `adresa` (
   `stroenie` varchar(256) NOT NULL,
   `korpus` varchar(256) NOT NULL,
   `ofis` varchar(256) NOT NULL,
-  PRIMARY KEY (`kladr`),
-  CONSTRAINT `postavschik_adres` FOREIGN KEY (`kladr`) REFERENCES `postavschik` (`kladr`) ON DELETE CASCADE
+  PRIMARY KEY (`kladr`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='Содержит полный адрес поставщика';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -45,7 +44,7 @@ CREATE TABLE `adresa` (
 
 LOCK TABLES `adresa` WRITE;
 /*!40000 ALTER TABLE `adresa` DISABLE KEYS */;
-INSERT INTO `adresa` VALUES ('3200000000000','nizhegorodsk','belaya_berezka','patrioticheskiy','lenina','9','1','2','12'),('3600000000000','voronezhskaya_obl','voronezh','vtoroy','minina','1','1','1','17'),('5200000000000','bryanskaya_obl','bryansk','perviy','chkalova','2','1','2','3'),('6300000000000','samarskaya_obl','samara','pushkinskiy','chapaeva','2','1','1','50'),('7700000000000','moskva','moskva','basmaniy','radio','1','2','3','15');
+INSERT INTO `adresa` VALUES ('32000000000000000','nizhegorodsk','belaya_berezka','patrioticheskiy','lenina','9','1','2','12'),('36000000000000000','voronezhskaya_obl','voronezh','vtoroy','minina','1','1','1','17'),('52000000000000000','bryanskaya_obl','bryansk','perviy','chkalova','2','1','2','3'),('63000000000000000','samarskaya_obl','samara','pushkinskiy','chapaeva','2','1','1','50'),('77000000000000000','moskva','moskva','basmaniy','radio','1','2','3','15');
 /*!40000 ALTER TABLE `adresa` ENABLE KEYS */;
 UNLOCK TABLES;
 

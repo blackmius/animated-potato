@@ -82,6 +82,8 @@ function reportModal(data, options, open) {
 const rubFormater = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format;
 
 function report(data, options) {
+    document.title = 'Отчет «Эффективность сотрудника»';
+
     let employeeData = {}, loading = true;
     const table = Table([
         { name: 'Дата', attr: 'data_prodazhi'  },
@@ -167,6 +169,7 @@ function report(data, options) {
 }
 
 export default function EmployeesReport() {
+    document.title = 'Формирование отчета «Эффективность сотрудника»';
     const data = {
         start: '',
         end: '',

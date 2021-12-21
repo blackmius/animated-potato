@@ -57,7 +57,6 @@ export default function Table(columns, options={}) {
                             options.onclick(options.pk ? r[options.pk] : r);
                         }
                         if (options.link) {
-                            console.log(options.pk, r[options.pk])
                             router.navigate(options.link+'/'+(options.pk ? r[options.pk] : ''), r)
                         }
                     }

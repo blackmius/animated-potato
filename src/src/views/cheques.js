@@ -10,6 +10,8 @@ import Modal from "./modal";
 import Table from "./table";
 
 export function ChequesTable() {
+    document.title = 'Продажи';
+
     const table = Table([
         { name: 'Дата', attr: 'data_prodazhi' },
         { name: 'Сотрудник', attr: 'Concat(s.familya," ",s.imya," ",s.otchestvo)' },
@@ -35,6 +37,8 @@ export function ChequesTable() {
 }
 
 export function ChequesForm(id) {
+    document.title = (id !== 'new' ? 'Редактирование' : 'Добавление') + ' продажи';
+
     const data = {
         kod_sotrudnika: +this.employee || employee().kod_sotrudnika || '',
         data_prodazhi: new Date().toISOString().slice(0, -1),
@@ -195,6 +199,20 @@ export function ChequesForm(id) {
         }
     }
 
+    const deleteModal = Modal(_ => z['p-2 w-[500px]'](
+        z['text-2xl']('Вы уверены что хотите удалить продажу'),
+        z['mt-4'],
+        z['text-lg']('После нажатия удалить, данные о продаже навсегда будут стерты из системы, и восстановить записи не получится, даже если очень надо'),
+        z['mt-4 flex'](
+            z['flex-1'],
+            Button('отмена', deleteModal.close),
+            Button('удалить', _ => {
+                q('delete from `check` where kod_checka=?', [id])
+                    .then(i => router.navigate('/cheques'));
+            })
+        )
+    ));
+
     return z['p-4'](
         Breadcrumbs(['/cheques', 'Чеки'], id === 'new' ? 'Создание чека' : 'Редактирование чека #'+id),
         z['text-4xl mt-8']('Общая информация'),
@@ -229,11 +247,11 @@ export function ChequesForm(id) {
 
             id !== 'new' ? z['w-full mt-4 p-4 bg-[#dd88c1] transition text-white rounded text-center font-medium cursor-pointer hover:bg-[#d874b6] active:bg-[#d260ac]']({
                 onclick() {
-                    q('delete from `check` where kod_checka=?', [id])
-                    .then(i => router.navigate('/cheques'));
+                    deleteModal.open();
                 }
             }, 'Удалить') : ''
         ),
-        modal
+        modal,
+        deleteModal
     )
 }

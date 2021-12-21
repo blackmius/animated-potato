@@ -7,8 +7,11 @@ import Breadcrumbs from "./breadcrumbs";
 import Button from "./button";
 import { q } from "../api";
 import { employee } from "./auth";
+import Modal from "./modal";
 
 export function EmployeesTable() {
+    document.title = 'Сотрудники';
+
     const table = Table([
         { name: 'ФИО', attr: 'Concat(familya," ",imya," ",otchestvo)' },
         { name: 'Телефон', attr: 'telefon' },
@@ -62,6 +65,8 @@ function makeid(length) {
 }
 
 export function EmployeesForm(id) {
+    document.title = (id !== 'new' ? 'Редактирование' : 'Добавление') + ' сотрудника';
+
     const data = {
         familya: '',
         imya: '',
@@ -130,7 +135,21 @@ export function EmployeesForm(id) {
         });
     }
 
-    function create(open_new) {
+    const deleteModal = Modal(_ => z['p-2 w-[500px]'](
+            z['text-2xl']('Вы уверены что хотите удалить сотрудника'),
+            z['mt-4'],
+            z['text-lg']('После нажатия удалить, данные о сотруднике навсегда будут стерты из системы, включая чеки, которые были им проведены, и восстановить записи не получится, даже если очень надо'),
+            z['mt-4 flex'](
+                z['flex-1'],
+                Button('отмена', deleteModal.close),
+                Button('удалить', _ => {
+                    q(`delete from sotrudnik where kod_sotrudnika=?`, [id])
+                    .then(i => router.navigate('/employees'));
+                })
+            )
+    ));
+
+    async function create(open_new) {
         let cancel;
         if (data.familya.trim() === '') {
             options.familya.error = 'Поле Фамилия не может быть пустым';
@@ -164,9 +183,29 @@ export function EmployeesForm(id) {
             options.data_naima.error = 'Поле Дата найма не может быть пустым';
             cancel = true;
         }
-        if (employee().kod_dolzhnosti === 3 && data.kod_avtorizacii.length == 0) {
-            options.kod_avtorizacii.error = 'Поле Код авторизации не может быть пустым';
-            cancel = true;
+        if (employee().kod_dolzhnosti === 3) {
+            if (data.kod_avtorizacii.length == 0) {
+                options.kod_avtorizacii.error = 'Поле Код авторизации не может быть пустым';
+                cancel = true;
+            } else {
+                const r = await q('select 1 from sotrudnik where kod_avtorizacii = ? and kod_sotrudnika != ?',
+                    [data.kod_avtorizacii, id]
+                );
+                if (r.length) {
+                    options.kod_avtorizacii.error = 'Код авторизации совпадает с другим пользователем';
+                    cancel = true;
+                }
+            }
+        }
+        if (!options.seriya_pasporta.error && !options.nomer_pasporta.error) {
+            const r = await q('select 1 from sotrudnik where seriya_pasporta = ? and nomer_pasporta = ? and kod_sotrudnika != ?',
+                [data.seriya_pasporta, data.nomer_pasporta, id]
+            );
+            if (r.length) {
+                options.seriya_pasporta.error = 'Номер и серия паспорта совпадает с другим пользователем';
+                //options.nomer_pasporta.error = true;
+                cancel = true;
+            }
         }
         if (cancel) {
             body.update();
@@ -250,10 +289,10 @@ export function EmployeesForm(id) {
 
             id !== 'new' ? z['w-full mt-4 p-4 bg-[#dd88c1] transition text-white rounded text-center font-medium cursor-pointer hover:bg-[#d874b6] active:bg-[#d260ac]']({
                 onclick() {
-                    q(`delete from sotrudnik where kod_sotrudnika=?`, [id])
-                    .then(i => router.navigate('/employees'));
+                    deleteModal.open();
                 }
             }, 'Удалить') : ''
-        ) : ''
+        ) : '',
+        deleteModal
     )
 }

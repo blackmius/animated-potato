@@ -1,4 +1,4 @@
-import { z, Val, Ref, body } from "../z/z3.9";
+import { z, Val, Ref, body, throttle } from "../z/z3.9";
 import Table from "./table";
 import { icons } from ".";
 import router from "../router";
@@ -9,6 +9,8 @@ import { q } from "../api";
 import Button from "./button";
 
 export function SuppliersTable() {
+    document.title = 'Поставщики';
+
     const table = Table([
         { name: 'Наименование организации', attr: 'naimenovanie' },
     ], {
@@ -38,6 +40,8 @@ export function SuppliersTable() {
   `kladr` char(20) DEFAULT NULL,
   */
 export function SuppliersForm(id) {
+    document.title = (id !== 'new' ? 'Редактирование' : 'Добавление') + ' поставщика';
+
     const data = {
         naimenovanie: '',
         inn: '',
@@ -47,8 +51,75 @@ export function SuppliersForm(id) {
     const options = {
         naimenovanie: {},
         inn: { imask: { mask: '00000000000' } },
-        kladr: { }
+        kladr: { disabled: true }
     };
+
+    const addressModal = Modal(_ => {
+        const _data = {
+            kladr: data.kladr,
+            region: '',
+            gorod: '',
+            raion: '',
+            ulitsa: '',
+            dom: '',
+            stroenie: '',
+            korpus: '',
+            ofis: '',
+        }
+        const options = {
+            kladr: {
+                imask: {
+                    // СС РРР ГГГ ППП УУУУ АА,
+                    mask: '00 000 000 000 0000 00',
+                    lazy: false
+                }
+            },
+            region: {},
+            gorod: {},
+            raion: {},
+            ulitsa: {},
+            dom: {},
+            stroenie: {},
+            korpus: {},
+            ofis: {},
+        }
+        const load = throttle(100, _ =>
+            q('select * from adresa where kladr = ?', [_data.kladr]).then(i => {
+                if (i.length > 0) Object.assign(_data, i[0]);
+                body.update();
+            }));
+        load();
+        return z['p-2 w-[500px]'](
+            z['text-2xl']('Редактирование адреса'),
+            z['mt-8'],
+            NamedInput('Номер КЛАДР', Ref(_data, 'kladr', load), options.kladr),
+            z['flex mt-4'](
+                z['w-1/2'](NamedInput('Регион', Ref(_data, 'region'), options.region)),
+                z['ml-4 w-1/2'](NamedInput('Город', Ref(_data, 'gorod'), options.gorod)),
+            ),
+            z['flex mt-4'](
+                z['w-1/2'](NamedInput('Район', Ref(_data, 'raion'), options.raion)),
+                z['ml-4 w-1/2'](NamedInput('Улица', Ref(_data, 'ulitsa'), options.ulitsa)),
+            ),
+            z['flex mt-4'](
+                z['w-1/4'](NamedInput('Дом', Ref(_data, 'dom'), options.dom)),
+                z['ml-4 w-1/4'](NamedInput('Строение', Ref(_data, 'stroenie'), options.stroenie)),
+                z['ml-4 w-1/4'](NamedInput('Корпус', Ref(_data, 'korpus'), options.korpus)),
+                z['ml-4 w-1/4'](NamedInput('Офис', Ref(_data, 'ofis'), options.ofis)),
+            ),
+            z['flex mt-4'](
+                z['flex-1'],
+                Button('Отмена', addressModal.close),
+                Button('Сохранить', async () => {
+                    const entries = Object.entries(_data);
+                    await q(`replace into adresa(${entries.map(v=>v[0]).join(',')}) values (${entries.map(_=>'?').join(',')})`, entries.map(v=>v[1]));
+                    data.kladr = _data.kladr;
+                    if (id !== 'new') create();
+                    addressModal.close();
+                })
+            )
+        );
+    });
 
     const contactModal = Modal((contactId) => {
         const data = {
@@ -112,6 +183,20 @@ export function SuppliersForm(id) {
         )
     });
 
+    const deleteModal = Modal(_ => z['p-2 w-[500px]'](
+        z['text-2xl']('Вы уверены что хотите удалить Поставщика'),
+        z['mt-4'],
+        z['text-lg']('После нажатия удалить, данные о поставщике навсегда будут стерты из системы, включая поступления, и восстановить записи не получится, даже если очень надо'),
+        z['mt-4 flex'](
+            z['flex-1'],
+            Button('отмена', deleteModal.close),
+            Button('удалить', _ => {
+                q(`delete from postavschik where kod_postavschika=?`, [id])
+                    .then(i => router.navigate('/suppliers'));
+            })
+        )
+    ));
+
     let suppliesTable, contactTable;
     if (id !== 'new') {
         q(`select ${Object.keys(data).join(',')} from postavschik where kod_postavschika=?`, [id])
@@ -142,11 +227,19 @@ export function SuppliersForm(id) {
         });
     }
 
-    function create(open_new) {
+    async function create(open_new) {
         let cancel;
         if (data.naimenovanie.trim() === '') {
             options.naimenovanie.error = 'Поле Наименование не может быть пустым';
             cancel = true;
+        } else {
+            const r = await q('select 1 from postavschik where naimenovanie = ? and kod_postavschika != ?',
+                [data.naimenovanie, id]
+            );
+            if (r.length) {
+                options.naimenovanie.error = 'Наименование совпадает с другим поставщиком';
+                cancel = true;
+            }
         }
         if (data.inn.trim() === '') {
             options.inn.error = 'Поле ИНН не может быть пустым';
@@ -179,7 +272,9 @@ export function SuppliersForm(id) {
             NamedInput('инн', Ref(data, 'inn'), options.inn),
         ),
         z['flex mt-4'](
-            NamedInput('Адрес', Ref(data, 'kladr'), options.kladr),
+            z['cursor-pointer']({
+                onclick() { addressModal.open() }
+            }, z['pointer-events-none'](NamedInput('Адрес', Ref(data, 'kladr'), options.kladr))),
         ),
         id !== 'new' ? z(
             z['flex items-center mt-8'](
@@ -219,11 +314,12 @@ export function SuppliersForm(id) {
 
             id !== 'new' ? z['w-full mt-4 p-4 bg-[#dd88c1] transition text-white rounded text-center font-medium cursor-pointer hover:bg-[#d874b6] active:bg-[#d260ac]']({
                 onclick() {
-                    q(`delete from postavschik where kod_postavschika=?`, [id])
-                    .then(i => router.navigate('/suppliers'));
+                    deleteModal.open();
                 }
             }, 'Удалить') : ''
         ),
-        contactModal
+        contactModal,
+        addressModal,
+        deleteModal
     )
 }

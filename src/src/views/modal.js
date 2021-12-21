@@ -7,6 +7,7 @@ export default function Modal(fn) {
         open(...args) {
             c(
                 z['fixed top-0 right-0 bottom-0 left-0 bg-black bg-opacity-50 flex items-center justify-center']({
+                        key: Math.random(),
                         on$created(e) { overlay = e.target; },
                         onclick(e) { if (e.target !== overlay) return; c(''); }
                     },

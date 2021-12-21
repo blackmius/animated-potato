@@ -5,8 +5,12 @@ import router from "../router";
 import { Check, NamedInput, NamedSelect } from "./input";
 import Breadcrumbs from "./breadcrumbs";
 import { q } from "../api";
+import Modal from "./modal";
+import Button from "./button";
 
 export function NomenclatureTable() {
+    document.title = 'Продукты';
+
     const table = Table([
         { name: 'Наименование', attr: 'nazvanie' },
         { name: 'Цена в продаже', attr: 'cena_v_prodazhe' },
@@ -30,6 +34,8 @@ export function NomenclatureTable() {
 }
 
 export function NomenclatureForm(id) {
+    document.title = (id !== 'new' ? 'Редактирование' : 'Добавление') + ' продукта';
+
     const data = {
         nazvanie: '',
         cena_v_prodazhe: 0,
@@ -72,6 +78,13 @@ export function NomenclatureForm(id) {
             options.nazvanie.error = 'Название не может быть пустым';
             body.update();
             return;
+        } else {
+            const r = await q('select 1 from preparat where nazvanie = ? and kod_preparata != ?', [data.nazvanie, id]);
+            if (r.length) {
+                options.nazvanie.error = 'Наименование совпадает с другим препаратом';
+                body.update();
+                return;
+            }
         }
         const values = Object.entries(data)
         if (id === 'new') {
@@ -81,9 +94,23 @@ export function NomenclatureForm(id) {
         } else {
             await q(`update preparat set ${values.map(v=>v[0]+'=?').join(',')} where kod_preparata=?`, values.map(v=>v[1]).concat([id]));
             await q('delete from vid_preparata where not exists(select 1 from preparat where vid = kod_vida)');
-            options.vid.reload();
+            options.vid?.reload?.();
         }
     }
+
+    const deleteModal = Modal(_ => z['p-2 w-[500px]'](
+        z['text-2xl']('Вы уверены что хотите удалить продукт'),
+        z['mt-4'],
+        z['text-lg']('После нажатия удалить, данные о продукте навсегда будут стерты из системы, включая его поступления и продажи, и восстановить записи не получится, даже если очень надо'),
+        z['mt-4 flex'](
+            z['flex-1'],
+            Button('отмена', deleteModal.close),
+            Button('удалить', _ => {
+                q(`delete from preparat where kod_preparata=?`, [id])
+                    .then(i => router.navigate('/nomenclature'));
+            })
+        )
+    ));
 
     return z['p-4'](
         Breadcrumbs(['/nomenclature', 'Номенклатура'], id === 'new' ? 'Новая номенклатура' : 'Редактирование номенклатуры #'+id),
@@ -115,10 +142,10 @@ export function NomenclatureForm(id) {
 
             id !== 'new' ? z['w-full mt-4 p-4 bg-[#dd88c1] transition text-white rounded text-center font-medium cursor-pointer hover:bg-[#d874b6] active:bg-[#d260ac]']({
                 onclick() {
-                    q(`delete from preparat where kod_preparata=?`, [id])
-                    .then(i => router.navigate('/nomenclature'));
+                    deleteModal.open()
                 }
             }, 'Удалить') : ''
-        )
+        ),
+        deleteModal
     )
 }
