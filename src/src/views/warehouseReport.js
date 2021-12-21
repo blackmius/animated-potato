@@ -13,18 +13,16 @@ export default function WarehouseReport() {
     document.title = 'Отчет остатков на складе';
     let data = [], loading = true;
     const table = Table([
-        { name: 'Номенклатура', attr: 'nazvanie'  },
-        { name: 'Остатки', attr: 'sum(kolichestvo) - sum(kolichestvo_upakovok)' },
+        { name: 'Номенклатура', attr: 'nazvanie' },
+        { name: 'Остатки', attr: '(IFNULL((select sum(kolichestvo) from nakladnaya n where n.kod_preparata = pp.kod_preparata), 0) - IFNULL((select sum(kolichestvo_upakovok) from prodazha pr where pr.kod_preparata = pp.kod_preparata), 0))' },
     ], {
-        table: 'prodazha',
-        join: 'inner join preparat on preparat.kod_preparata = prodazha.kod_preparata join nakladnaya on nakladnaya.kod_preparata = prodazha.kod_preparata',
-        group: 'nazvanie'
+        table: 'preparat pp'
     });
     Promise.all([
-        q(`select nazvanie as l, sum(kolichestvo_upakovok) as s, sum(kolichestvo) as p from prodazha
-           inner join preparat on preparat.kod_preparata = prodazha.kod_preparata
-           join nakladnaya on nakladnaya.kod_preparata = prodazha.kod_preparata
-           group by nazvanie`).then(i => {
+        q(`select nazvanie as l,
+            IFNULL((select sum(kolichestvo) from nakladnaya n where n.kod_preparata = pp.kod_preparata), 0) as p,
+            IFNULL((select sum(kolichestvo_upakovok) from prodazha pr where pr.kod_preparata = pp.kod_preparata), 0) as s
+            from preparat pp`).then(i => {
             data = i;
         })
     ]).then(_ => {

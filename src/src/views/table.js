@@ -18,7 +18,8 @@ const iconButton = (icon, onclick, { disabled }={}) =>
 export default function Table(columns, options={}) {
     const filters = { rowsPerPage: 10, skip: 0, count: 0 };
     let aggrData = Val({}), data = Val([]), loading = Val(false), loadingError = Val('');
-    let attrs = columns.map(c => c.attr);
+    columns.forEach((c, i) => c.as = '$'+i);
+    let attrs = columns.map(c => c.attr + ' as ' + c.as);
     if (options.pk) {
         attrs = attrs.concat([options.pk]).join(',');
         options.pk = options.pk.split('.').pop();
@@ -60,7 +61,7 @@ export default function Table(columns, options={}) {
                             router.navigate(options.link+'/'+(options.pk ? r[options.pk] : ''), r)
                         }
                     }
-                }, columns.map(v => z.Td['px-6 py-4 whitespace-nowrap'](r[v.attr])))),
+                }, columns.map(v => z.Td['px-6 py-4 whitespace-nowrap'](r[v.as])))),
                 _ => aggr.length === 0 || loading() || loadingError() || data().length === 0 ? '' :
                     z.Tr(columns.map(v => z.Td['px-6 py-4 whitespace-nowrap text-gray-500 bg-gray-50'](
                         v.aggr ? aggrData()[`${v.aggr}(${v.attr})`] : ''
