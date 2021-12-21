@@ -120,6 +120,7 @@ export function ChequesForm(id) {
                         await q('delete from prodazha where kod_checka=? and kod_preparata=?', [id, nomenclatureId])
                         modal.close();
                         table.load();
+                        create();
                     }),
                 Button(nomenclatureId === 'new' ? 'Добавить' : 'Сохранить', async () => {
                     if (data.kod_preparata.length === 0) {
@@ -141,6 +142,7 @@ export function ChequesForm(id) {
                     await q(`insert into prodazha(${values.map(v=>v[0]).join(',')}) values (${values.map(i=>'?').join(',')})`, values.map(v=>v[1]));
                     modal.close();
                     table.load();
+                    create();
                 })
             )
         )

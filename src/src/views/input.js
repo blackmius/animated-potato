@@ -1,11 +1,16 @@
 import { icons } from ".";
-import { z, body } from "../z/z3.9";
+import { z, body, Val, Ref } from "../z/z3.9";
 import { Dropdown } from "./dropdown";
 import IMask from '../imask.js';
+import Button from "./button";
 
 const InputEvents = (value, options) => ({
     on$created(e) {
         options.target = e.target;
+        if (options.load) options.load().then(i => {
+            options.values = i;
+            body.update();
+        });
         if (options.imask) {
             e.target.value = value();
             options._imask = IMask(e.target, options.imask);
@@ -105,7 +110,39 @@ export const Select = (value, options={}) =>
             z['flex-1'],
             icons.chevronDown
         ),
-        c => options.values.map(v => z['cursor-pointer']({ onclick() { options.error = ''; value(v.value); c(); } }, v.name)),
+        c => z({
+                on$created(e) {
+                    options.search = ''; body.update();
+                    options.reload = _ => options.load().then(i => {
+                        options.values = i;
+                        body.update();
+                    })
+                }
+            },
+            options.create ? z(Input(Ref(options, 'search'), { placeholder: 'Поиск' }), z['mt-4']) : '',
+            _ => {
+                const values = options.values.filter(v => v.name.toLocaleLowerCase().includes(options.search?.toLocaleLowerCase() || ''));
+                return values.length ?
+                    values.map(v => z['cursor-pointer transition hover:bg-gray-200 p-1 rounded']({
+                        onclick() {
+                            options.error = '';
+                            value(v.value);
+                            c();
+                        }
+                    }, v.name))
+                    : z['flex justify-center flex-col items-center'](
+                        'Результатов не найдено',
+                        Button('Создать', async() => {
+                            options.search = options.search.trim();
+                            let name = options.search[0].toLocaleUpperCase() + options.search.slice(1).toLocaleLowerCase();
+                            const id = (await options.create(name)).insertId;
+                            options.values = await options.load();
+                            value(id);
+                            c();
+                        })
+                    );
+            }
+        ),
         options
     );
 

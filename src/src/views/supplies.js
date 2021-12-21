@@ -38,7 +38,7 @@ export function SuppliesForm(id) {
     const data = {
         kod_postavschika: +this.supplier || '',
         data_postavki: new Date().toISOString().split('T')[0],
-        summa: ''
+        summa: 0
     };
 
     const options = {
@@ -142,6 +142,7 @@ export function SuppliesForm(id) {
                         await q('delete from nakladnaya where kod_postavki=? and kod_preparata=?', [id, invoiceId])
                         invoiceModal.close();
                         invoice.load();
+                        create();
                     }),
                 Button(invoiceId === 'new' ? 'Добавить' : 'Сохранить', async () => {
                     if (data.kod_preparata.length === 0) {
@@ -177,6 +178,7 @@ export function SuppliesForm(id) {
                     await q(`insert into nakladnaya(${values.map(v=>v[0]).join(',')}) values (${values.map(i=>'?').join(',')})`, values.map(v=>v[1]));
                     invoiceModal.close();
                     invoice.load();
+                    create();
                 })
             )
         )
@@ -229,7 +231,7 @@ export function SuppliesForm(id) {
             return;
         }
         const r = await q('select sum(summa) from nakladnaya where kod_postavki = ?', [id])
-        data.summa = r[0]['sum(summa)'];
+        data.summa = r[0]['sum(summa)'] || 0;
         const values = Object.entries(data)
         if (id === 'new') {
             q(`insert into postavka(${values.map(v=>v[0]).join(',')}) values (${values.map(i=>'?').join(',')})`, values.map(v=>v[1])).then(i => {

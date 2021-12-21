@@ -219,8 +219,8 @@ export function SuppliersForm(id) {
 
             id !== 'new' ? z['w-full mt-4 p-4 bg-[#dd88c1] transition text-white rounded text-center font-medium cursor-pointer hover:bg-[#d874b6] active:bg-[#d260ac]']({
                 onclick() {
-                    q(`delete from sotrudnik where kod_sotrudnika=?`, [id])
-                    .then(i => router.navigate('/employees'));
+                    q(`delete from postavschik where kod_postavschika=?`, [id])
+                    .then(i => router.navigate('/suppliers'));
                 }
             }, 'Удалить') : ''
         ),

@@ -36,7 +36,7 @@ export function NomenclatureForm(id) {
         otpuskaetsa_po_receptu: false,
         kod_atx: '',
         vid: '',
-        sezoniy: false
+        sezoniy: false,
     };
     const options = {
         nazvanie: {},
@@ -50,7 +50,15 @@ export function NomenclatureForm(id) {
                 }
             }
         },
-        vid: { values: [] },
+        vid: {
+            values: [],
+            async create(name) {
+                return q('insert into vid_preparata(nazvanie) values (?)', [name]);
+            },
+            async load() {
+                return q('select kod_vida as value, nazvanie as name from vid_preparata');
+            }
+        },
         sezoniy: {}
     };
 
@@ -59,7 +67,7 @@ export function NomenclatureForm(id) {
         .then(r=>{ Object.assign(data, r[0]); body.update() })
     }
 
-    function create(open_new) {
+    async function create(open_new) {
         if (data.nazvanie.trim() === '') {
             options.nazvanie.error = 'Название не может быть пустым';
             body.update();
@@ -67,11 +75,13 @@ export function NomenclatureForm(id) {
         }
         const values = Object.entries(data)
         if (id === 'new') {
-            q(`insert into preparat(${values.map(v=>v[0]).join(',')}) values (${values.map(i=>'?').join(',')})`, values.map(v=>v[1])).then(i => {
-                router.navigate('/nomenclature/'+ (open_new ? 'new' : i.insertId))
-            })
+            await q(`insert into preparat(${values.map(v=>v[0]).join(',')}) values (${values.map(i=>'?').join(',')})`, values.map(v=>v[1]));
+            q('delete from vid_preparata where not exists(select 1 from preparat where vid = kod_vida)')
+            router.navigate('/nomenclature/'+ (open_new ? 'new' : i.insertId));
         } else {
-            q(`update preparat set ${values.map(v=>v[0]+'=?').join(',')} where kod_preparata=?`, values.map(v=>v[1]).concat([id]))
+            await q(`update preparat set ${values.map(v=>v[0]+'=?').join(',')} where kod_preparata=?`, values.map(v=>v[1]).concat([id]));
+            await q('delete from vid_preparata where not exists(select 1 from preparat where vid = kod_vida)');
+            options.vid.reload();
         }
     }
 
